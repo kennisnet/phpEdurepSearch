@@ -2,10 +2,14 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
+ * @version 0.2
  * @link http://edurepdiensten.wiki.kennisnet.nl
+ *
  * @todo srw interface
  * @todo source code comments
  * @todo class for returning result object
+ * @todo prepare page nrs
+ * @todo save url
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -23,9 +27,12 @@
  */
 class EdurepSearch
 {
+	# contains the raw curl request, the url
+	public $request = "";
+
 	# contains the raw curl response
 	public $response = "";
-	
+
 	# baseurl for edurep production
 	private $baseurl = "http://wszoeken.edurep.kennisnet.nl:8000/";
 
@@ -36,17 +43,17 @@ class EdurepSearch
 		"recordPacking" => "xml",
 		"x-api-key" => "",
 		"query" => "edurep" );
-	
+
 	# extra record schema's
 	private $recordschemas = array();
-	
+
 	# internal counter for curl retries
 	private $curlretries = 0;
-	
+
 	# curl retries before an exception is thrown
 	private $maxcurlretries = 3;
-	
-	
+
+
 	public function __construct( $api_key )
 	{
 		if ( !empty( $api_key ) )
@@ -58,17 +65,17 @@ class EdurepSearch
 			throw new InvalidArgumentException( "Use a valid Edurep API key" );
 		}
 	}
-	
+
 	public function lomSearch()
 	{
 		$this->executeQuery( $this->getQuery( "edurep/sruns" ) );
 	}
-	
+
 	public function smoSearch()
 	{
 		$this->executeQuery( $this->getQuery( "smo/sruns" ) );
 	}
-	
+
 	public function setParameter( $key, $value )
 	{
 		switch ( $key )
@@ -81,16 +88,51 @@ class EdurepSearch
 			case "sortKeys":
 			$this->parameters[$key] = $value;
 			break;
-			
+
 			case "x-recordSchema":
 			$this->recordschemas[] = $value;
 			break;
-			
+
 			default:
 			throw new InvalidArgumentException( "Unknown Edurep parameter: ".$key );
 		}
 	}
-	
+
+	public function loadParameters( $parameters )
+	{
+		foreach ( $parameters as $key => $value )
+		{
+			switch ( $key )
+			{
+				case "query":
+				case "maximumRecords":
+				case "startRecord":
+				case "recordSchema":
+				case "x-term-drilldown":
+				case "sortKeys":
+				$this->parameters[$key] = $value;
+				break;
+
+				case "x-recordSchemas":
+				foreach( $value as $xrecordschema )
+				{
+					$this->recordschemas[] = $xrecordschema;
+				}
+				break;
+			}
+		}
+	}
+
+	public function getParameters()
+	{
+		$parameters = $this->parameters;
+		if ( !empty( $recordschemas ) )
+		{
+			$parameters["x-recordSchemas"] = array_unique( $this->recordschemas );
+		}
+		return $parameters;
+	}
+
 	public function setBaseurl( $baseurl )
 	{
 		$this->baseurl = $baseurl;
@@ -114,7 +156,7 @@ class EdurepSearch
 		$query = $path."?".implode( "&", $arguments );
 		
 		# adding x-recordSchema's
-		foreach ( $this->recordschemas as $recordschema )
+		foreach ( array_unique( $this->recordschemas ) as $recordschema )
 		{
 			$query .= "&x-recordSchema=".$recordschema;
 		}
@@ -124,12 +166,14 @@ class EdurepSearch
 	
 	private function executeQuery( $query )
 	{
-		$curl = curl_init( $this->baseurl.$query );
+		$this->request = $this->baseurl.$query;
+
+		$curl = curl_init( $this->request );
 		curl_setopt( $curl, CURLOPT_HEADER, FALSE );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, TRUE );
         curl_setopt( $curl, CURLOPT_ENCODING, "gzip,deflate" );
         $this->response = curl_exec( $curl );
-		
+
 		if ( !$this->response )
 		{
 			if ( curl_errno( $curl ) == 56 )
@@ -152,7 +196,7 @@ class EdurepSearch
 			}
 		}
 
-		curl_close( $curl );		
+		curl_close( $curl );
 	}
 }
 ?>
