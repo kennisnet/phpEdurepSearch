@@ -2,12 +2,13 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.3
+ * @version 0.4
  * @link http://edurepdiensten.wiki.kennisnet.nl
  *
  * @todo srw interface
  * @todo source code comments
- * @todo expand class for returning result object
+ * @todo result support for lom
+ * @todo result support for drilldown
  * @todo prepare page nrs
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
@@ -201,11 +202,16 @@ class EdurepSearch
 
 class EdurepResults
 {
+	# public result vars
 	public $numberOfRecords = 0;
 	public $nextRecordPosition = 0;
 	public $records = array();
 
+	# private result vars
 	private $recordSchema = "";
+	private $xrecordSchemas = array();
+
+	# namespaces used in edurep results
 	private $namespaces = array(
 		"local:recorddata" => "rd",
 		"http://www.loc.gov/zing/srw/" => "srw",
@@ -217,6 +223,26 @@ class EdurepResults
 		"http://xsd.kennisnet.nl/smd/sad" => "sad",
 		"http://xsd.kennisnet.nl/smd/1.0/" => "smo",
 		"http://xsd.kennisnet.nl/smd/hreview/1.0/" => "hr" );
+
+	# type definition for each record field
+	private $record_template = array(
+		"title" => "",
+		"description" => "",
+		"keyword" => array(),
+		"language" => "",
+		"publisher" => "",
+		"location" => "",
+		"mimetype" => "" );
+
+	# defines how a dc record maps on the object record
+	private	$mapping_dc = array(
+		"title" => "title",
+		"description" => "description",
+		"keyword" => "subject",
+		"language" => "language",
+		"publisher" => "publisher",
+		"location" => "identifier",
+		"mimetype" => "format" );
 
 
 	public function __construct( $xmlstring )
@@ -243,40 +269,74 @@ class EdurepResults
 		$this->nextRecordPosition = $array["nextRecordPosition"][0][0];
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
 
-		switch ( $this->recordSchema )
+		# get optional x-recordSchemas
+		if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) )
 		{
-			case "lom":
-			$this->loadLomRecords( $array["records"][0]["record"] );
-			break;
-
-			case "oai_dc":
-			$this->loadDcRecords( $array["records"][0]["record"] );
-			break;
+			foreach( $array["echoedSearchRetrieveRequest"][0]["x-recordSchema"] as $xrecordschema )
+			{
+				$this->xrecordSchemas[] = $xrecordschema[0];
+			}
 		}
-	}
-	
-	private function loadLomRecords( $records )
-	{
-		foreach ( $records as $array )
+		
+		foreach ( $array["records"][0]["record"] as $record_array )
 		{
 			$record = array();
-			$record["identifier"] = $array["recordIdentifier"][0][0];
+			$record["identifier"] = $record_array["recordIdentifier"][0][0];
 			$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
-			$record["title"] = $array["recordData"][0]["lom"][0]["general"][0]["title"][0]["langstring"][0][0];
+
+			# merge recorddata, either lom or dc
+			switch ( $this->recordSchema )
+			{
+				case "oai_dc":
+				$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
+				break;
+			}
+
+			# merge optional smbAggregatedData
+			if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) )
+			{
+				$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][0]["smbAggregatedData"][0] ) );
+			}
+
 			$this->records[] = $record;
 		}
 	}
 
-	private function loadDcRecords( $records )
+	// walk across record_array and fill record 
+	// according to record template and mapping
+	private function getDcRecord( $record_array )
 	{
-		foreach ( $records as $array )
+		$record = array();
+
+		foreach ( $this->mapping_dc as $record_key => $mapping_key )
 		{
-			$record = array();
-			$record["identifier"] = $array["recordIdentifier"][0][0];
-			$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
-			$record["title"] = $array["recordData"][0]["dc"][0]["title"][0][0];
-			$this->records[] = $record;
+			if ( array_key_exists( $mapping_key, $record_array ) )
+			{
+				if ( is_string( $this->record_template[$record_key] ) )
+				{
+					$record[$record_key] = $record_array[$mapping_key][0][0];
+				}
+				else
+				{
+					# field type is array
+					foreach ( $record_array[$mapping_key] as $value )
+					{
+						$record[$record_key][] = $value[0];
+					}
+				}
+			}			
 		}
+		
+		return $record;
+	}	
+
+	private function getSmbAggregatedData( $array )
+	{
+		$sad["nrofreviews"] = $array["numberOfReviews"][0][0];
+		$sad["nrofratings"] = $array["numberOfRatings"][0][0];
+		$sad["nroftags"] = $array["numberOfTags"][0][0];
+		$sad["rating"] = $array["averageNormalizedRating"][0][0];
+		return $sad;	
 	}
 
 	# inspired by T CHASSAGNETTE's example:
