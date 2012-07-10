@@ -2,13 +2,12 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.4
+ * @version 0.5
  * @link http://edurepdiensten.wiki.kennisnet.nl
  *
  * @todo srw interface
  * @todo source code comments
  * @todo result support for lom
- * @todo result support for drilldown
  * @todo prepare page nrs
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
@@ -206,6 +205,7 @@ class EdurepResults
 	public $numberOfRecords = 0;
 	public $nextRecordPosition = 0;
 	public $records = array();
+	public $drilldowns = array();
 
 	# private result vars
 	private $recordSchema = "";
@@ -277,7 +277,8 @@ class EdurepResults
 				$this->xrecordSchemas[] = $xrecordschema[0];
 			}
 		}
-		
+
+		# get records
 		foreach ( $array["records"][0]["record"] as $record_array )
 		{
 			$record = array();
@@ -299,6 +300,23 @@ class EdurepResults
 			}
 
 			$this->records[] = $record;
+		}
+
+		# get optional drilldowns
+		if ( array_key_exists( "drilldown", $array["extraResponseData"][0] ) )
+		{
+			foreach ( $array["extraResponseData"][0]["drilldown"][0]["term-drilldown"][0]["navigator"] as $navigator )
+			{
+				if ( array_key_exists( "item", $navigator ) )
+				{
+					foreach ( $navigator["item"] as $item )
+					{
+						$counts[$item[0]] = $item["@attributes"]["count"];
+					}
+					$this->drilldowns[$navigator["@attributes"]["name"]] = $counts;
+					unset( $counts );
+				}
+			}
 		}
 	}
 

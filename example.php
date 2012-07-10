@@ -22,6 +22,9 @@ $edurep->setParameter( "maximumRecords", 7 );
 # default 1
 $edurep->setParameter( "startRecord", 3 );
 
+# set to return drilldowns, default none
+$edurep->setParameter( "x-term-drilldown", "lom.technical.format:5" );
+
 # set to return an additional recordschema
 # can be called multiple times
 $edurep->setParameter( "x-recordSchema", "smbAggregatedData" );
