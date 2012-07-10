@@ -1,12 +1,11 @@
-This is a PHP package for interfacing with the Edurep search engine. Set optional search parameters like a query or the number of records it should return, and perform a query for LOM or SMO records.
+This is a PHP package for interfacing with the Edurep search engine. It consists of two parts, EdurepSearch and EdurepResults.
+
+In EdurepSearch you can set optional search parameters like a query or the number of records it should return, and perform a query for LOM or SMO records.
+
+In EdurepResults you can load a raw XML Edurep resultstring and retrieve a result object.
 
 Requirements:
- - PHP 5.1 or higher compiled with curl
+ - PHP 5.1 or higher compiled with curl and simplexml
 
 Usage:
 View the example.php for details using this package.
-
-Common methods:
- - lomSearch()
- - smoSearch()
- - setParameter( $key, $value )

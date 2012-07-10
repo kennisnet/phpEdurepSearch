@@ -1,6 +1,6 @@
 <?php 
 /**
- * Example use of Edurep search.
+ * Example use of Edurep search and results.
  */
 require_once("edurepsearch.php");
 
@@ -16,7 +16,7 @@ $edurep->setParameter( "recordSchema", "oai_dc" );
 
 # set a different amount of records to return each page
 # default 10, minimum 1, maximum 100
-$edurep->setParameter( "maximumRecords", 5 );
+$edurep->setParameter( "maximumRecords", 7 );
 
 # set a different start records (for paging results)
 # default 1
@@ -30,5 +30,8 @@ $edurep->setParameter( "x-recordSchema", "smbAggregatedData" );
 $edurep->lomSearch();
 
 # the raw result is stored in $response
-print_r( $edurep->response );
+# call the EdurepResults class to fill the result object
+$results = new EdurepResults( $edurep->response );
+
+print_r( $results )
 ?>

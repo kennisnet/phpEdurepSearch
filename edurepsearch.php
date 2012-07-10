@@ -2,14 +2,13 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.2
+ * @version 0.3
  * @link http://edurepdiensten.wiki.kennisnet.nl
  *
  * @todo srw interface
  * @todo source code comments
- * @todo class for returning result object
+ * @todo expand class for returning result object
  * @todo prepare page nrs
- * @todo save url
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -197,6 +196,153 @@ class EdurepSearch
 		}
 
 		curl_close( $curl );
+	}
+}
+
+class EdurepResults
+{
+	public $numberOfRecords = 0;
+	public $nextRecordPosition = 0;
+	public $records = array();
+
+	private $recordSchema = "";
+	private $namespaces = array(
+		"local:recorddata" => "rd",
+		"http://www.loc.gov/zing/srw/" => "srw",
+		"http://www.imsglobal.org/xsd/imsmd_v1p2" => "lom",
+		"http://purl.org/dc/elements/1.1/" => "dc",
+		"http://www.openarchives.org/OAI/2.0/oai_dc/" => "oai_dc",
+		"http://meresco.org/namespace/harvester/meta" => "meta",
+		"http://meresco.org/namespace/drilldown" => "dd",
+		"http://xsd.kennisnet.nl/smd/sad" => "sad",
+		"http://xsd.kennisnet.nl/smd/1.0/" => "smo",
+		"http://xsd.kennisnet.nl/smd/hreview/1.0/" => "hr" );
+
+
+	public function __construct( $xmlstring )
+	{
+		# set custom namespace in namespace-less element
+		$xmlstring = str_replace( "<recordData ", "<recordData xmlns=\"local:recorddata\" ", $xmlstring );
+
+		# create simple xml object
+		$xml = simplexml_load_string( $xmlstring );
+
+		if ( !is_object( $xml ) )
+		{
+			throw new Exception( "Error on creating SimpleXML object." );
+		}
+		else
+		{
+			$this->loadObject( $this->load( $xml ) );
+		}
+	}
+	
+	private function loadObject( $array )
+	{
+		$this->numberOfRecords = $array["numberOfRecords"][0][0];
+		$this->nextRecordPosition = $array["nextRecordPosition"][0][0];
+		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
+
+		switch ( $this->recordSchema )
+		{
+			case "lom":
+			$this->loadLomRecords( $array["records"][0]["record"] );
+			break;
+
+			case "oai_dc":
+			$this->loadDcRecords( $array["records"][0]["record"] );
+			break;
+		}
+	}
+	
+	private function loadLomRecords( $records )
+	{
+		foreach ( $records as $array )
+		{
+			$record = array();
+			$record["identifier"] = $array["recordIdentifier"][0][0];
+			$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
+			$record["title"] = $array["recordData"][0]["lom"][0]["general"][0]["title"][0]["langstring"][0][0];
+			$this->records[] = $record;
+		}
+	}
+
+	private function loadDcRecords( $records )
+	{
+		foreach ( $records as $array )
+		{
+			$record = array();
+			$record["identifier"] = $array["recordIdentifier"][0][0];
+			$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
+			$record["title"] = $array["recordData"][0]["dc"][0]["title"][0][0];
+			$this->records[] = $record;
+		}
+	}
+
+	# inspired by T CHASSAGNETTE's example:
+	# http://www.php.net/manual/en/ref.simplexml.php#52512
+	private function load( $xml )
+	{
+		$fils = 0;
+		$array = array();
+
+		foreach( $this->namespaces as $uri => $prefix )
+		{   
+			foreach( $xml->children($uri) as $key => $value )
+			{   
+				$child = $this->load( $value );
+
+				// To deal with the attributes, 
+				// only works for attributes without a namespace, or in with xml namespace prefixes 
+				if (count( $value->attributes() ) > 0  || count( $value->attributes("xml", TRUE) ) > 0 )
+				{   
+					$child["@attributes"] = $this->getAttributes( $value );
+				}
+				// Also add the namespace when there is one
+				if ( !empty( $uri ) )
+				{   
+					$child["@namespace"] = $uri;
+				}
+
+				//Let see if the new child is not in the array
+				if( !in_array( $key, array_keys($array) ) )
+				{
+					$array[$key] = NULL;
+					$array[$key][] = $child;
+				}
+				else
+				{   
+					//Add an element in an existing array
+					$array[$key][] = $child;
+				}
+
+				$fils++;
+			}
+		}
+
+		# no container, returning value
+		if ( $fils == 0 )
+		{
+			return array( (string) $xml );
+		}
+
+		return $array;
+	}
+
+	private function getAttributes( $xml )
+	{
+		foreach( $xml->attributes() as $key => $value )
+		{
+			$arr[$key] = (string) current( $value );
+		}
+
+		foreach( $xml->attributes( "xml", TRUE ) as $key => $value )
+		{
+			$arr[$key][] = (string) current( $value );
+			$arr[$key]["@namespace"] = "http://www.w3.org/XML/1998/namespace";
+		}
+
+		return $arr;
 	}
 }
 ?>
