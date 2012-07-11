@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.5
+ * @version 0.6
  * @link http://edurepdiensten.wiki.kennisnet.nl
  *
  * @todo srw interface
@@ -266,7 +266,7 @@ class EdurepResults
 	private function loadObject( $array )
 	{
 		$this->numberOfRecords = $array["numberOfRecords"][0][0];
-		$this->nextRecordPosition = $array["nextRecordPosition"][0][0];
+		$this->nextRecordPosition = ( array_key_exists( "nextRecordPosition", $array ) ? $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
 
 		# get optional x-recordSchemas
@@ -296,8 +296,16 @@ class EdurepResults
 			# merge optional smbAggregatedData
 			if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) )
 			{
-				$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][0]["smbAggregatedData"][0] ) );
+				$pos = array_search( "smbAggregatedData", $this->xrecordSchemas );
+				$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][$pos]["smbAggregatedData"][0] ) );
 			}
+			
+			# merge optional smo's
+			if ( in_array( "smo", $this->xrecordSchemas ) )
+			{
+				$pos = array_search( "smo", $this->xrecordSchemas );
+				$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
+			}			
 
 			$this->records[] = $record;
 		}
@@ -355,6 +363,42 @@ class EdurepResults
 		$sad["nroftags"] = $array["numberOfTags"][0][0];
 		$sad["rating"] = $array["averageNormalizedRating"][0][0];
 		return $sad;	
+	}
+
+	private function getSmos( $array )
+	{
+		$record["smo"] = array();
+		
+		# return immediately if no smo's available for a record
+		if ( !array_key_exists( "smo", $array ) )
+		{
+			return $record;
+		}
+		
+		foreach( $array["smo"] as $smo )
+		{
+			$result["smoid"] = $smo["smoId"][0][0];
+			$result["supplierid"] = $smo["supplierId"][0][0];
+			$result["identifier"] = $smo["hReview"][0]["info"][0][0];
+			
+			# optional fields
+			if ( array_key_exists( "userId", $smo ) )
+			{
+				$result["userid"] =  $smo["userId"][0][0];
+			}
+			
+			$hreviewfields = array( "summary", "dtreviewed", "rating", "worst", "best", "description" );
+			foreach ( $hreviewfields as $field )
+			{
+				if ( array_key_exists( $field, $smo["hReview"][0] ) )
+				{
+					$result[$field] = $smo["hReview"][0][$field][0][0];
+				}
+			}
+			
+			$record["smo"][] = $result;
+		}
+		return $record;
 	}
 
 	# inspired by T CHASSAGNETTE's example:
