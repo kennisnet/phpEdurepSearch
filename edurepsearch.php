@@ -2,12 +2,12 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.6
+ * @version 0.7
  * @link http://edurepdiensten.wiki.kennisnet.nl
  *
  * @todo srw interface
  * @todo source code comments
- * @todo result support for lom
+ * @todo full result support for lom
  * @todo prepare page nrs
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
@@ -232,7 +232,20 @@ class EdurepResults
 		"language" => "",
 		"publisher" => "",
 		"location" => "",
-		"mimetype" => "" );
+		"mimetype" => "",
+		"learningresourcetype" => array(),
+		"context" => array() );
+
+	# defines how a lom record maps on the object record
+	private	$mapping_lom = array(
+		"title" => "general.title.langstring",
+		"description" => "general.description.langstring",
+		"keyword" => "general.keyword.langstring",
+		"language" => "general.language",
+		"location" => "technical.location",
+		"mimetype" => "technical.format",
+		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
+		"context" => "educational.context.value.langstring" );
 
 	# defines how a dc record maps on the object record
 	private	$mapping_dc = array(
@@ -288,6 +301,10 @@ class EdurepResults
 			# merge recorddata, either lom or dc
 			switch ( $this->recordSchema )
 			{
+				case "lom":
+				$record = array_merge( $record, $this->getLomRecord( $record_array["recordData"][0]["lom"][0] ) );
+				break;
+
 				case "oai_dc":
 				$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
 				break;
@@ -328,6 +345,62 @@ class EdurepResults
 		}
 	}
 
+	private function getLomRecord( $record_array )
+	{
+		$record = array();
+		
+		foreach ( $this->mapping_lom as $record_key => $mapping_key )
+		{
+			$field_sections = explode( ".", $mapping_key );
+			$lom_category = $field_sections[0];
+			$lom_field = $field_sections[1];
+			$field_count = count( $field_sections );
+			
+			# break if category doesn't exists
+			if ( !array_key_exists( $lom_category, $record_array ) )
+			{
+				break;
+			}
+			
+			# three types of fields, langstring, vocabularyvalues and none of these
+			if ( array_key_exists( $lom_field, $record_array[$lom_category][0] ) )
+			{
+				$field_array = $record_array[$lom_category][0][$lom_field];
+				
+				if ( is_string( $this->record_template[$record_key] ) )
+				{
+					switch( $field_count )
+					{
+						case 2: $record[$record_key] = $field_array[0][0]; break;
+						case 3: $record[$record_key] = $field_array[0]["langstring"][0][0]; break;
+						case 4: $record[$record_key] = $field_array[0]["value"][0]["langstring"][0][0]; break;
+					}
+				}
+				else
+				{
+					switch( $field_count )
+					{
+						case 3:
+							foreach ( $field_array as $value )
+							{
+								$record[$record_key][] = $value["langstring"][0][0];
+							}
+						break;
+						
+						case 4:
+							foreach ( $field_array as $value )
+							{
+								$record[$record_key][] = $value["value"][0]["langstring"][0][0];
+							}
+						break;
+					}
+				}
+			}
+		}
+		
+		return $record;
+	}
+
 	// walk across record_array and fill record 
 	// according to record template and mapping
 	private function getDcRecord( $record_array )
@@ -354,7 +427,7 @@ class EdurepResults
 		}
 		
 		return $record;
-	}	
+	}
 
 	private function getSmbAggregatedData( $array )
 	{
