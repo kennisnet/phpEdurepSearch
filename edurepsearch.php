@@ -2,11 +2,12 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.7
+ * @version 0.7.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
+ * @example phpEdurepSearch/example.php
  *
  * @todo srw interface
- * @todo source code comments
+ * @todo more source code comments
  * @todo full result support for lom
  * @todo prepare page nrs
  * 
@@ -75,6 +76,12 @@ class EdurepSearch
 		$this->executeQuery( $this->getQuery( "smo/sruns" ) );
 	}
 
+	/**
+	 * Set Edurep parameters for the request.
+	 *
+	 * @param string $key Edurep parameter.
+	 * @param string $value Value for parameters, urlencoded.
+	 */
 	public function setParameter( $key, $value )
 	{
 		switch ( $key )
@@ -97,6 +104,11 @@ class EdurepSearch
 		}
 	}
 
+	/**
+	 * Fill local parameters with external parameters array.
+	 *
+	 * @param array $parameters Same as output for getParameters().
+	 */
 	public function loadParameters( $parameters )
 	{
 		foreach ( $parameters as $key => $value )
@@ -122,6 +134,11 @@ class EdurepSearch
 		}
 	}
 
+	/**
+	 * Retrieve all local parameters. 
+	 *
+	 * @return array All Edurep parameters and values 
+	 */
 	public function getParameters()
 	{
 		$parameters = $this->parameters;
@@ -142,6 +159,13 @@ class EdurepSearch
 		$this->parameters["recordPacking"] = $recordpacking;
 	}
 	
+	/**
+	 * Create an Edurep query url based on path. This url does
+	 * not contain the host (added in curl request). 
+	 *
+	 * @param string $path Either /edurep/sruns or /smo/sruns.
+	 * @return string Query url without host.
+	 */
 	private function getQuery( $path )
 	{
 		# setting arguments
@@ -163,6 +187,13 @@ class EdurepSearch
 		return $query;
 	}
 	
+	/**
+	 * Combines set host with query url, executes query and 
+	 * stores raw result in self::response and request in 
+	 * self::request.
+	 *
+	 * @param string $query Edurep query url without host.
+	 */
 	private function executeQuery( $query )
 	{
 		$this->request = $this->baseurl.$query;
@@ -258,6 +289,14 @@ class EdurepResults
 		"mimetype" => "format" );
 
 
+	/**
+	 * Loads the results from the Edurep XML string if the
+	 * string is correct XML.
+	 * Because the load() function is namespace dependent, and
+	 * one element has no namespace, this is created manually.
+	 *   
+	 * @param string $xmlstring XML string.
+	 */
 	public function __construct( $xmlstring )
 	{
 		# set custom namespace in namespace-less element
@@ -276,6 +315,12 @@ class EdurepResults
 		}
 	}
 	
+	/**
+	 * Loads the entire result object, also by calling various 
+	 * support functions.
+	 *
+	 * @param array $array XML array.
+	 */
 	private function loadObject( $array )
 	{
 		$this->numberOfRecords = $array["numberOfRecords"][0][0];
@@ -474,8 +519,14 @@ class EdurepResults
 		return $record;
 	}
 
-	# inspired by T CHASSAGNETTE's example:
-	# http://www.php.net/manual/en/ref.simplexml.php#52512
+	/**
+	 * Loads raw xml (with different namespaces) into array. 
+	 * Keeps attributes without namespace or xml prefix.
+	 * 
+	 * @param object $xml SimpleXML object.
+	 * @return array $array XML array.
+	 * @see http://www.php.net/manual/en/ref.simplexml.php#52512
+	 */
 	private function load( $xml )
 	{
 		$fils = 0;
@@ -524,6 +575,13 @@ class EdurepResults
 		return $array;
 	}
 
+	/**
+	 * Support function for XML load function. Returns
+	 * attribute parts for the XML array.
+	 *
+	 * @param object $xml SimpleXML object.
+	 * @return array $array XML array.
+	 */
 	private function getAttributes( $xml )
 	{
 		foreach( $xml->attributes() as $key => $value )
