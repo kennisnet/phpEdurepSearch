@@ -2,14 +2,14 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.7.1
+ * @version 0.8
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
  * @todo srw interface
  * @todo more source code comments
  * @todo full result support for lom
- * @todo prepare page nrs
+ * @todo select language attribute to return
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -233,8 +233,17 @@ class EdurepSearch
 class EdurepResults
 {
 	# public result vars
-	public $numberOfRecords = 0;
-	public $nextRecordPosition = 0;
+	public $recordcount = 0;
+	public $pagesize = 10;
+	public $startrecord = 0;
+	public $nextrecord = 0;
+	# page mapping with startrecord
+	public $navigation = array(
+		"firstpage" => 1,
+		"previouspage" => 0,
+		"currentpage" => 0,
+		"nextpage" => 0,
+		"lastpage" => 0 );
 	public $records = array();
 	public $drilldowns = array();
 
@@ -323,9 +332,12 @@ class EdurepResults
 	 */
 	private function loadObject( $array )
 	{
-		$this->numberOfRecords = $array["numberOfRecords"][0][0];
-		$this->nextRecordPosition = ( array_key_exists( "nextRecordPosition", $array ) ? $array["nextRecordPosition"][0][0] : 0 );
+		$this->recordcount = $array["numberOfRecords"][0][0];
+		$this->pagesize = $array["echoedSearchRetrieveRequest"][0]["maximumRecords"][0][0];
+		$this->startrecord = $array["echoedSearchRetrieveRequest"][0]["startRecord"][0][0];
+		$this->nextrecord = ( array_key_exists( "nextRecordPosition", $array ) ? $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
+		$this->setNavigation();
 
 		# get optional x-recordSchemas
 		if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) )
@@ -518,7 +530,59 @@ class EdurepResults
 		}
 		return $record;
 	}
+	
+	/**
+	 * Sets page navigation values. In the navigation
+	 * array, pages are mapped with startrecord values.
+	 */
+	private function setNavigation()
+	{
+		$nr_of_pages = ceil( $this->recordcount/$this->pagesize );
+		$current_page = ( empty( $this->nextrecord ) ? $nr_of_pages : ceil( ($this->nextrecord - 1)/$this->pagesize ) );
 
+		# fill default navigation
+		$this->navigation["nextpage"] = $this->nextrecord;
+		$this->navigation["currentpage"] = $this->startrecord;
+		
+		if ( $current_page > 1 )
+		{
+            $this->navigation["previouspage"] = $this->selectStartrecord( $current_page - 1 );
+        }
+		if ( $current_page < $nr_of_pages )
+		{
+			$this->navigation["lastpage"] = $this->selectStartrecord( $nr_of_pages );
+		}
+
+		# fill pagenumbered navigation around current page
+		if ( $current_page > 2 ) 
+		{
+			$this->navigation[$current_page - 2] = $this->selectStartrecord( $current_page - 2 );
+		}
+		if ( $current_page > 1 )
+		{
+			$this->navigation[$current_page - 1] = $this->selectStartrecord( $current_page - 1 );
+        }
+		if ( $current_page < $nr_of_pages )
+		{
+			$this->navigation[$current_page + 1] = $this->selectStartrecord( $current_page + 1 );
+		}
+		if ( $current_page < $nr_of_pages - 1 ) 
+		{
+			$this->navigation[$current_page + 2] = $this->selectStartrecord( $current_page + 2 );
+		}
+	}
+
+	/**
+	 * Helper function for setNavigation() 
+	 *
+	 * @param integer $page The result page number.
+	 * @return integer $startrecord The startrecord for that page.
+	 */
+	private function selectStartrecord( $page )
+	{
+		return ( $page * $this->pagesize ) - ( $this->pagesize - 1 );
+	}
+	
 	/**
 	 * Loads raw xml (with different namespaces) into array. 
 	 * Keeps attributes without namespace or xml prefix.
