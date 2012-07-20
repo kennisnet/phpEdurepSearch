@@ -258,6 +258,7 @@ class EdurepResults
 		"http://www.imsglobal.org/xsd/imsmd_v1p2" => "lom",
 		"http://purl.org/dc/elements/1.1/" => "dc",
 		"http://www.openarchives.org/OAI/2.0/oai_dc/" => "oai_dc",
+		"http://edurep.cq2.org/extra" => "extra",
 		"http://meresco.org/namespace/harvester/meta" => "meta",
 		"http://meresco.org/namespace/drilldown" => "dd",
 		"http://xsd.kennisnet.nl/smd/sad" => "sad",
@@ -275,6 +276,11 @@ class EdurepResults
 		"mimetype" => "",
 		"learningresourcetype" => array(),
 		"context" => array() );
+
+	# valid purpose type to check in extra record
+	private $purpose_types = array( 
+		"discipline",
+		"educationallevel" );
 
 	# defines how a lom record maps on the object record
 	private	$mapping_lom = array(
@@ -365,6 +371,13 @@ class EdurepResults
 				case "oai_dc":
 				$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
 				break;
+			}
+
+			# merge optional extra data
+			if ( in_array( "extra", $this->xrecordSchemas ) ) 
+			{
+				$pos = array_search( "extra", $this->xrecordSchemas );
+				$record = array_merge( $record, $this->getExtraData( $record_array["extraRecordData"][0]["recordData"][$pos]["extra"][0] ) );
 			}
 
 			# merge optional smbAggregatedData
@@ -486,6 +499,40 @@ class EdurepResults
 		return $record;
 	}
 
+	private function getExtraData( $array )
+	{
+		$extra = array();
+		
+		foreach( $array as $category => $field )
+		{
+			switch( $category )
+			{
+				case "lifeCycle":
+				foreach ( $field[0]["contribute"] as $contribute )
+				{
+					if ( array_key_exists( "publisher", $contribute ) && array_key_exists( "name", $contribute["publisher"][0] ) )
+					{
+						$extra["publisher"] = $contribute["publisher"][0]["name"][0][0];
+					}
+					if ( array_key_exists( "author", $contribute ) )
+					{
+						$extra["author"][] = $contribute["author"][0]["name"][0][0];
+					}
+				}
+				break;
+				
+				case "classification":
+				foreach( $field as $classification )
+				{
+					$extra = array_merge( $extra, $this->getExtraClassifications( $classification ) );
+				}
+				break;
+			}
+		}
+		
+		return $extra;
+	}
+
 	private function getSmbAggregatedData( $array )
 	{
 		$sad["nrofreviews"] = $array["numberOfReviews"][0][0];
@@ -572,6 +619,30 @@ class EdurepResults
 		}
 	}
 
+	/**
+	 * Helper function for getExtraData() 
+	 * 
+	 * @param array $classification An xml array of a classification.
+	 * @return array $extra Result array part to be merged.
+	 */
+	private function getExtraClassifications( $classification )
+	{
+		$extra = array();
+		
+		foreach( $this->purpose_types as $purpose )
+		{
+			if ( array_key_exists( $purpose, $classification ) )
+			{
+				foreach( $classification[$purpose] as $taxon )
+				{
+					$extra[$purpose][] = $taxon["id"][0][0];
+				}
+			}
+		}
+
+		return $extra;
+	}
+	
 	/**
 	 * Helper function for setNavigation() 
 	 *
