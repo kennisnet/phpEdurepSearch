@@ -265,7 +265,8 @@ class EdurepResults
 		"description" => "",
 		"keyword" => array(),
 		"language" => "",
-		"publisher" => "",
+		"publisher" => array(),
+		"author" => array(),
 		"location" => "",
 		"format" => "",
 		"learningresourcetype" => array(),
@@ -273,7 +274,12 @@ class EdurepResults
 		"cost" => "",
 		"rights" => "" );
 
-	# valid purpose type to check in extra record
+	# valid contribute roles to check in extra record
+	private $contribute_roles = array(
+		"author", 
+		"publisher" );
+
+	# valid purpose types to check in extra record
 	private $purpose_types = array(
 		"competency", 
 		"discipline",
@@ -299,6 +305,7 @@ class EdurepResults
 		"keyword" => "subject",
 		"language" => "language",
 		"publisher" => "publisher",
+		"author" => "creator",
 		"location" => "identifier",
 		"format" => "format",
 		"rights" => "rights" );
@@ -503,7 +510,6 @@ class EdurepResults
 				}
 			}			
 		}
-		
 		return $record;
 	}
 
@@ -516,28 +522,14 @@ class EdurepResults
 			switch( $category )
 			{
 				case "lifeCycle":
-				foreach ( $field[0]["contribute"] as $contribute )
-				{
-					if ( array_key_exists( "publisher", $contribute ) && array_key_exists( "name", $contribute["publisher"][0] ) )
-					{
-						$extra["publisher"] = $contribute["publisher"][0]["name"][0][0];
-					}
-					if ( array_key_exists( "author", $contribute ) && array_key_exists( "name", $contribute["author"][0] ) )
-					{
-						$extra["author"][] = $contribute["author"][0]["name"][0][0];
-					}
-				}
+				$extra = array_merge( $extra, $this->getExtraContributes( $field[0]["contribute"] ) );
 				break;
 				
 				case "classification":
-				foreach( $field as $classification )
-				{
-					$extra = array_merge( $extra, $this->getExtraClassifications( $classification ) );
-				}
+				$extra = array_merge( $extra, $this->getExtraClassifications( $field ) );
 				break;
 			}
 		}
-		
 		return $extra;
 	}
 
@@ -629,26 +621,57 @@ class EdurepResults
 	}
 
 	/**
-	 * Helper function for getExtraData() 
+	 * Contribute helper function for getExtraData() 
 	 * 
-	 * @param array $classification An xml array of a classification.
+	 * @param array $contribute An xml array of the contributes.
 	 * @return array $extra Result array part to be merged.
 	 */
-	private function getExtraClassifications( $classification )
+	private function getExtraContributes( $contributes )
+	{
+		$extra = array();
+		
+		foreach( $this->contribute_roles as $role )
+		{
+			foreach( $contributes as $contribute )
+			{
+				if ( array_key_exists( $role, $contribute ) )
+				{
+					foreach ( $contribute[$role] as $entity )
+					{
+						if ( array_key_exists( "name", $entity ) )
+						{
+							$extra[$role][] = $entity["name"][0][0];
+						}
+					}
+				}
+			}
+		}
+		return $extra;
+	}
+	
+	/**
+	 * Classification helper function for getExtraData() 
+	 * 
+	 * @param array $classification An xml array of the classifications.
+	 * @return array $extra Result array part to be merged.
+	 */
+	private function getExtraClassifications( $classifications )
 	{
 		$extra = array();
 		
 		foreach( $this->purpose_types as $purpose )
 		{
-			if ( array_key_exists( $purpose, $classification ) )
+			foreach( $classifications as $classification )
 			{
-				foreach( $classification[$purpose] as $taxon )
+				if ( array_key_exists( $purpose, $classification ) )
 				{
-					$extra[$purpose][] = $taxon["id"][0][0];
+					foreach( $classification[$purpose] as $taxon )
+					{
+						$extra[$purpose][] = $taxon["id"][0][0];
+					}
 				}
 			}
 		}
-
 		return $extra;
 	}
 	
