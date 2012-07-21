@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.8
+ * @version 0.9
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -266,6 +266,7 @@ class EdurepResults
 		"http://xsd.kennisnet.nl/smd/hreview/1.0/" => "hr" );
 
 	# type definition for each record field
+	# optional fields not included
 	private $record_template = array(
 		"title" => "",
 		"description" => "",
@@ -273,12 +274,15 @@ class EdurepResults
 		"language" => "",
 		"publisher" => "",
 		"location" => "",
-		"mimetype" => "",
+		"format" => "",
 		"learningresourcetype" => array(),
-		"context" => array() );
+		"context" => array(),
+		"cost" => "",
+		"rights" => "" );
 
 	# valid purpose type to check in extra record
-	private $purpose_types = array( 
+	private $purpose_types = array(
+		"competency", 
 		"discipline",
 		"educationallevel" );
 
@@ -289,9 +293,11 @@ class EdurepResults
 		"keyword" => "general.keyword.langstring",
 		"language" => "general.language",
 		"location" => "technical.location",
-		"mimetype" => "technical.format",
+		"format" => "technical.format",
 		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
-		"context" => "educational.context.value.langstring" );
+		"context" => "educational.context.value.langstring",
+		"cost" => "rights.cost.value.langstring",
+		"rights" => "rights.description.langstring" );
 
 	# defines how a dc record maps on the object record
 	private	$mapping_dc = array(
@@ -301,7 +307,8 @@ class EdurepResults
 		"language" => "language",
 		"publisher" => "publisher",
 		"location" => "identifier",
-		"mimetype" => "format" );
+		"format" => "format",
+		"rights" => "rights" );
 
 
 	/**
@@ -398,7 +405,7 @@ class EdurepResults
 		}
 
 		# get optional drilldowns
-		if ( array_key_exists( "drilldown", $array["extraResponseData"][0] ) )
+		if ( array_key_exists( "extraResponseData", $array ) && array_key_exists( "drilldown", $array["extraResponseData"][0] ) )
 		{
 			foreach ( $array["extraResponseData"][0]["drilldown"][0]["term-drilldown"][0]["navigator"] as $navigator )
 			{
@@ -433,6 +440,7 @@ class EdurepResults
 			}
 			
 			# three types of fields, langstring, vocabularyvalues and none of these
+			# two types of returns, single or multiple
 			if ( array_key_exists( $lom_field, $record_array[$lom_category][0] ) )
 			{
 				$field_array = $record_array[$lom_category][0][$lom_field];
