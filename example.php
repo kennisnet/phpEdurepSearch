@@ -36,5 +36,9 @@ $edurep->lomSearch();
 # call the EdurepResults class to fill the result object
 $results = new EdurepResults( $edurep->response );
 
-print_r( $results )
+# print the result records
+print_r( $results->records );
+
+# print startrecord values for a navigation bar
+print_r( $results->navigation );
 ?>

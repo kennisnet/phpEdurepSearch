@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.9
+ * @version 0.9.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -237,13 +237,6 @@ class EdurepResults
 	public $pagesize = 10;
 	public $startrecord = 0;
 	public $nextrecord = 0;
-	# page mapping with startrecord
-	public $navigation = array(
-		"firstpage" => 1,
-		"previouspage" => 0,
-		"currentpage" => 0,
-		"nextpage" => 0,
-		"lastpage" => 0 );
 	public $records = array();
 	public $drilldowns = array();
 
@@ -310,6 +303,13 @@ class EdurepResults
 		"format" => "format",
 		"rights" => "rights" );
 
+	# controls the texts for the textual navigation buttons
+	private $navigation_text = array(
+		"firstpage" => "<<",
+		"previouspage" => "<",
+		"currentpage" => "-",
+		"nextpage" => ">",
+		"lastpage" => ">>" );
 
 	/**
 	 * Loads the results from the Edurep XML string if the
@@ -522,7 +522,7 @@ class EdurepResults
 					{
 						$extra["publisher"] = $contribute["publisher"][0]["name"][0][0];
 					}
-					if ( array_key_exists( "author", $contribute ) )
+					if ( array_key_exists( "author", $contribute ) && array_key_exists( "name", $contribute["author"][0] ) )
 					{
 						$extra["author"][] = $contribute["author"][0]["name"][0][0];
 					}
@@ -595,20 +595,12 @@ class EdurepResults
 		$nr_of_pages = ceil( $this->recordcount/$this->pagesize );
 		$current_page = ( empty( $this->nextrecord ) ? $nr_of_pages : ceil( ($this->nextrecord - 1)/$this->pagesize ) );
 
-		# fill default navigation
-		$this->navigation["nextpage"] = $this->nextrecord;
-		$this->navigation["currentpage"] = $this->startrecord;
-		
 		if ( $current_page > 1 )
 		{
-            $this->navigation["previouspage"] = $this->selectStartrecord( $current_page - 1 );
+			$this->navigation[$this->navigation_text["firstpage"]] = 1;
+            $this->navigation[$this->navigation_text["previouspage"]] = $this->selectStartrecord( $current_page - 1 );
         }
-		if ( $current_page < $nr_of_pages )
-		{
-			$this->navigation["lastpage"] = $this->selectStartrecord( $nr_of_pages );
-		}
-
-		# fill pagenumbered navigation around current page
+	
 		if ( $current_page > 2 ) 
 		{
 			$this->navigation[$current_page - 2] = $this->selectStartrecord( $current_page - 2 );
@@ -617,6 +609,9 @@ class EdurepResults
 		{
 			$this->navigation[$current_page - 1] = $this->selectStartrecord( $current_page - 1 );
         }
+		
+		$this->navigation[$this->navigation_text["currentpage"]] = $this->startrecord;
+		
 		if ( $current_page < $nr_of_pages )
 		{
 			$this->navigation[$current_page + 1] = $this->selectStartrecord( $current_page + 1 );
@@ -624,6 +619,12 @@ class EdurepResults
 		if ( $current_page < $nr_of_pages - 1 ) 
 		{
 			$this->navigation[$current_page + 2] = $this->selectStartrecord( $current_page + 2 );
+		}
+
+		if ( $current_page < $nr_of_pages )
+		{
+			$this->navigation[$this->navigation_text["nextpage"]] = $this->nextrecord;
+			$this->navigation[$this->navigation_text["lastpage"]] = $this->selectStartrecord( $nr_of_pages );
 		}
 	}
 
