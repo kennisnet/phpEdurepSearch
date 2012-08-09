@@ -23,11 +23,15 @@ $edurep->setParameter( "maximumRecords", 7 );
 $edurep->setParameter( "startRecord", 3 );
 
 # set to return drilldowns, default none
-$edurep->setParameter( "x-term-drilldown", "lom.technical.format:5" );
+$edurep->setParameter( "x-term-drilldown", "lom.technical.format:5,lom.rights.cost:2" );
 
 # set to return an additional recordschema
 # can be called multiple times
 $edurep->setParameter( "x-recordSchema", "smbAggregatedData" );
+
+# set recordSchema extra for contributes and classifications
+# in the results
+$edurep->setParameter( "x-recordSchema", "extra" );
 
 # perform a search for lom records
 $edurep->lomSearch();
