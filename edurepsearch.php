@@ -264,7 +264,7 @@ class EdurepResults
 		"title" => "",
 		"description" => "",
 		"keyword" => array(),
-		"language" => "",
+		"language" => array(),
 		"publisher" => array(),
 		"author" => array(),
 		"location" => "",
