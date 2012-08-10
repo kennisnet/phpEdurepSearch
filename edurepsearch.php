@@ -465,6 +465,12 @@ class EdurepResults
 				{
 					switch( $field_count )
 					{
+						case 2:
+							foreach ( $field_array as $value)
+							{
+								$record[$record_key][] = $value[0];
+							} 
+						break;
 						case 3:
 							foreach ( $field_array as $value )
 							{
