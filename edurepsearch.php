@@ -357,58 +357,62 @@ class EdurepResults
 		$this->startrecord = $array["echoedSearchRetrieveRequest"][0]["startRecord"][0][0];
 		$this->nextrecord = ( array_key_exists( "nextRecordPosition", $array ) ? $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
-		$this->setNavigation();
 
-		# get optional x-recordSchemas
-		if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) )
+		if ( $this->pagesize > 0 )
 		{
-			foreach( $array["echoedSearchRetrieveRequest"][0]["x-recordSchema"] as $xrecordschema )
+			$this->setNavigation();
+
+			# get optional x-recordSchemas
+			if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) )
 			{
-				$this->xrecordSchemas[] = $xrecordschema[0];
+				foreach( $array["echoedSearchRetrieveRequest"][0]["x-recordSchema"] as $xrecordschema )
+				{
+					$this->xrecordSchemas[] = $xrecordschema[0];
+				}
 			}
-		}
-
-		# get records
-		foreach ( $array["records"][0]["record"] as $record_array )
-		{
-			$record = array();
-			$record["identifier"] = $record_array["recordIdentifier"][0][0];
-			$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
-
-			# merge recorddata, either lom or dc
-			switch ( $this->recordSchema )
+	
+			# get records
+			foreach ( $array["records"][0]["record"] as $record_array )
 			{
-				case "lom":
-				$record = array_merge( $record, $this->getLomRecord( $record_array["recordData"][0]["lom"][0] ) );
-				break;
-
-				case "oai_dc":
-				$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
-				break;
+				$record = array();
+				$record["identifier"] = $record_array["recordIdentifier"][0][0];
+				$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
+	
+				# merge recorddata, either lom or dc
+				switch ( $this->recordSchema )
+				{
+					case "lom":
+					$record = array_merge( $record, $this->getLomRecord( $record_array["recordData"][0]["lom"][0] ) );
+					break;
+	
+					case "oai_dc":
+					$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
+					break;
+				}
+	
+				# merge optional extra data
+				if ( in_array( "extra", $this->xrecordSchemas ) ) 
+				{
+					$pos = array_search( "extra", $this->xrecordSchemas );
+					$record = array_merge( $record, $this->getExtraData( $record_array["extraRecordData"][0]["recordData"][$pos]["extra"][0] ) );
+				}
+	
+				# merge optional smbAggregatedData
+				if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) )
+				{
+					$pos = array_search( "smbAggregatedData", $this->xrecordSchemas );
+					$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][$pos]["smbAggregatedData"][0] ) );
+				}
+				
+				# merge optional smo's
+				if ( in_array( "smo", $this->xrecordSchemas ) )
+				{
+					$pos = array_search( "smo", $this->xrecordSchemas );
+					$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
+				}			
+	
+				$this->records[] = $record;
 			}
-
-			# merge optional extra data
-			if ( in_array( "extra", $this->xrecordSchemas ) ) 
-			{
-				$pos = array_search( "extra", $this->xrecordSchemas );
-				$record = array_merge( $record, $this->getExtraData( $record_array["extraRecordData"][0]["recordData"][$pos]["extra"][0] ) );
-			}
-
-			# merge optional smbAggregatedData
-			if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) )
-			{
-				$pos = array_search( "smbAggregatedData", $this->xrecordSchemas );
-				$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][$pos]["smbAggregatedData"][0] ) );
-			}
-			
-			# merge optional smo's
-			if ( in_array( "smo", $this->xrecordSchemas ) )
-			{
-				$pos = array_search( "smo", $this->xrecordSchemas );
-				$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
-			}			
-
-			$this->records[] = $record;
 		}
 
 		# get optional drilldowns
