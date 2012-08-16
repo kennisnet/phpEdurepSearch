@@ -30,7 +30,8 @@ $edurep->setParameter( "x-term-drilldown", "lom.technical.format:5,lom.rights.co
 $edurep->setParameter( "x-recordSchema", "smbAggregatedData" );
 
 # set recordSchema extra for contributes and classifications
-# in the results
+# in the results, also, typicallearningtime is returned in seconds
+# rather than the PTxM format
 $edurep->setParameter( "x-recordSchema", "extra" );
 
 # perform a search for lom records

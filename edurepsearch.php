@@ -271,6 +271,7 @@ class EdurepResults
 		"format" => "",
 		"learningresourcetype" => array(),
 		"context" => array(),
+		"typicallearningtime" => "",
 		"cost" => "",
 		"rights" => "" );
 
@@ -295,6 +296,7 @@ class EdurepResults
 		"format" => "technical.format",
 		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
 		"context" => "educational.context.value.langstring",
+		"typicallearningtime" => "educational.typicallearningtime.datetime",
 		"cost" => "rights.cost.value.langstring",
 		"rights" => "rights.description.langstring" );
 
@@ -439,10 +441,17 @@ class EdurepResults
 		
 		foreach ( $this->mapping_lom as $record_key => $mapping_key )
 		{
+			# first, set individual fields
 			$field_sections = explode( ".", $mapping_key );
 			$lom_category = $field_sections[0];
 			$lom_field = $field_sections[1];
 			$field_count = count( $field_sections );
+			
+			if ( $field_count > 2 )
+			{
+				# either langstring or datetime
+				$field_content = $field_sections[2];
+			}
 			
 			# break if category doesn't exists
 			if ( !array_key_exists( $lom_category, $record_array ) )
@@ -461,7 +470,7 @@ class EdurepResults
 					switch( $field_count )
 					{
 						case 2: $record[$record_key] = $field_array[0][0]; break;
-						case 3: $record[$record_key] = $field_array[0]["langstring"][0][0]; break;
+						case 3: $record[$record_key] = $field_array[0][$field_content][0][0]; break;
 						case 4: $record[$record_key] = $field_array[0]["value"][0]["langstring"][0][0]; break;
 					}
 				}
@@ -475,10 +484,11 @@ class EdurepResults
 								$record[$record_key][] = $value[0];
 							} 
 						break;
+						
 						case 3:
 							foreach ( $field_array as $value )
 							{
-								$record[$record_key][] = $value["langstring"][0][0];
+								$record[$record_key][] = $value[$field_content][0][0];
 							}
 						break;
 						
@@ -533,6 +543,10 @@ class EdurepResults
 			{
 				case "lifeCycle":
 				$extra = array_merge( $extra, $this->getExtraContributes( $field[0]["contribute"] ) );
+				break;
+				
+				case "educational":
+				$extra = array_merge( $extra, $this->getExtraEducationals( $field ) );
 				break;
 				
 				case "classification":
@@ -654,6 +668,28 @@ class EdurepResults
 						}
 					}
 				}
+			}
+		}
+		return $extra;
+	}
+
+	/**
+	 * Educational helper function for getExtraData() 
+	 * More educationals can exists, but some values get
+	 * overwritten.
+	 * 
+	 * @param array $educational An xml array of the educationals.
+	 * @return array $extra Result array part to be merged.
+	 */
+	private function getExtraEducationals( $educationals )
+	{
+		$extra = array();
+		
+		foreach( $educationals as $educational )
+		{
+			if ( array_key_exists( "typicalLearningTime", $educational ) )
+			{
+				$extra["typicallearningtime"] = $educational["typicalLearningTime"][0]["duration"][0][0];
 			}
 		}
 		return $extra;
