@@ -7,6 +7,10 @@ require_once("edurepsearch.php");
 # create with a valid api key
 $edurep = new EdurepSearch( "12345" );
 
+# optionally, set a different baseurl
+# the default baseurl points to production
+# $edurep->setBaseurl( "http://anotheredurepurl.nl" );
+
 # set search terms, default edurep
 $edurep->setParameter( "query", "math" );
 

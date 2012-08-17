@@ -9,3 +9,23 @@ Requirements:
 
 Usage:
 View the example.php for details using this package.
+
+
+The following table shows the currently supported LOM response fields; if the field is returned single- or multivalued and whether the field is returned with recordSchema lom or oai_dc, or x-recordSchema extra. 
+
+                                        #       lom     oai_dc  extra
+---------------------------------------------------------------------
+general.title                           S       x       x
+general.language                        M       x       x
+general.description                     S       x       x
+general.language                        M       x       x
+lifecycle.contribute.author             M               x       x
+lifecycle.contribute.publisher          M               x       x
+technical.location                      S       x       x
+technical.format                        S       x       x
+educational.learningresourcetype        M       x
+educational.context                     M       x
+educational.typicallearningtime         S       x               x (s)
+rights.cost                             S       x
+rights.description                      S       x       x
+classification                          M                       x

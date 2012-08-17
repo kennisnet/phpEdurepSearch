@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.9.1
+ * @version 0.10
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -148,7 +148,12 @@ class EdurepSearch
 		}
 		return $parameters;
 	}
-
+	
+	/**
+	 * Set another baseurl, for instance to Edurep Staging.
+	 *
+	 * @param string $baseurl An Edurep baseurl (including port)
+	 */
 	public function setBaseurl( $baseurl )
 	{
 		$this->baseurl = $baseurl;
