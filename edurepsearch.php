@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.10
+ * @version 0.11
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -10,6 +10,7 @@
  * @todo more source code comments
  * @todo full result support for lom
  * @todo select language attribute to return
+ * @todo combine with collecties.json output for collection name and access
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -274,6 +275,7 @@ class EdurepResults
 		"author" => array(),
 		"location" => "",
 		"format" => "",
+		"duration" => "",
 		"learningresourcetype" => array(),
 		"context" => array(),
 		"typicallearningtime" => "",
@@ -299,6 +301,7 @@ class EdurepResults
 		"language" => "general.language",
 		"location" => "technical.location",
 		"format" => "technical.format",
+		"duration" => "technical.duration.datetime",
 		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
 		"context" => "educational.context.value.langstring",
 		"typicallearningtime" => "educational.typicallearningtime.datetime",
@@ -396,6 +399,10 @@ class EdurepResults
 					$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
 					break;
 				}
+
+				# merge duration fields
+				# execute before extra merge so technical duration won't overwrite typicallearingtime
+				$record = $this->normalizeDurations( $record );
 	
 				# merge optional extra data
 				if ( in_array( "extra", $this->xrecordSchemas ) ) 
@@ -416,8 +423,8 @@ class EdurepResults
 				{
 					$pos = array_search( "smo", $this->xrecordSchemas );
 					$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
-				}			
-	
+				}
+
 				$this->records[] = $record;
 			}
 		}
@@ -606,6 +613,81 @@ class EdurepResults
 		}
 		return $record;
 	}
+
+	/**
+	 * Normalizes PT duration fields from technical duration and
+	 * typicallearningtime to seconds, and fill aggregated object
+	 * time.
+	 *
+	 * @param array $record Partial record array.
+	 * @return array $record Partial record array.
+	 */
+	private function normalizeDurations( $record )
+	{
+		if ( array_key_exists( "duration", $record ) && substr( $record["duration"], 0, 2 ) == "PT" )
+		{
+			$time = $this->normalizeDuration( $record["duration"] );
+			if ( !empty( $time ) )
+			{
+				$record["duration"] = $time;
+				$record["time"] = $time;
+			}
+			else
+			{
+				unset( $record["duration"] );
+			}
+		}
+		
+		if ( array_key_exists( "typicallearningtime", $record ) && substr( $record["typicallearningtime"], 0, 2 ) == "PT" )
+		{
+			$time = $this->normalizeDuration( $record["typicallearningtime"] );
+			if ( !empty( $time ) )
+			{
+				$record["typicallearningtime"] = $time;
+				$record["time"] = $time;
+			}
+			else
+			{
+				unset( $record["typicallearningtime"] );
+			}
+		}
+		
+		return $record;
+	}
+
+	/**
+	 * Converts PT duration format to seconds. Currently only converts
+	 * values for hours, minutes and seconds.
+	 *
+	 * @param string $pt_time Duration in PT format.
+	 * @return integer $seconds PT duration format converted to seconds.
+	 */
+	private function normalizeDuration( $pt_time )
+	{
+		$hours = 0;
+		$minutes = 0;
+		$seconds = 0;
+
+		preg_match_all( "/PT([0-9]+H)?([0-9]+M)?([0-9]+S)?/", $pt_time, $matches );
+		
+		if ( !empty( $matches[0] ) )
+		{
+			if ( !empty( $matches[1] ) )
+			{
+				$hours = preg_replace( "/[A-Z]/" , "" , $matches[1][0] );
+			}
+			if ( !empty( $matches[2] ) )
+			{
+				$minutes = preg_replace( "/[A-Z]/" , "" , $matches[2][0] );
+			}
+			if ( !empty( $matches[3] ) )
+			{
+				$seconds = preg_replace( "/[A-Z]/" , "" , $matches[3][0] );
+			}
+		}
+
+		return (3600 * $hours) + ( 60 * $minutes ) + $seconds;
+	}
 	
 	/**
 	 * Sets page navigation values. In the navigation
@@ -695,6 +777,7 @@ class EdurepResults
 			if ( array_key_exists( "typicalLearningTime", $educational ) )
 			{
 				$extra["typicallearningtime"] = $educational["typicalLearningTime"][0]["duration"][0][0];
+				$extra["time"] = $extra["typicallearningtime"];
 			}
 		}
 		return $extra;

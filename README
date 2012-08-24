@@ -23,9 +23,13 @@ lifecycle.contribute.author             M               x       x
 lifecycle.contribute.publisher          M               x       x
 technical.location                      S       x       x
 technical.format                        S       x       x
+technical.duration						S		x
 educational.learningresourcetype        M       x
 educational.context                     M       x
-educational.typicallearningtime         S       x               x (s)
+educational.typicallearningtime         S       x               x
 rights.cost                             S       x
 rights.description                      S       x       x
 classification                          M                       x
+
+
+If any of technical duration or typicallearningtime exist, they are converted to seconds and aggregated to the time key in the record array. So if any duration is present in the metadata, it's available in the time key, with typicallearningtime taking precedence.
