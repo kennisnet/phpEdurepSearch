@@ -12,6 +12,7 @@ $edurep = new EdurepSearch( "12345" );
 # $edurep->setBaseurl( "http://anotheredurepurl.nl" );
 
 # set search terms, default edurep
+# should be provided urldecoded, the class will encode it
 $edurep->setParameter( "query", "math" );
 
 # set another default record schema

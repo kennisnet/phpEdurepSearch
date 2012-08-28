@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.11
+ * @version 0.11.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -79,6 +79,7 @@ class EdurepSearch
 
 	/**
 	 * Set Edurep parameters for the request.
+	 * The query parameter should be provided urldecoded.
 	 *
 	 * @param string $key Edurep parameter.
 	 * @param string $value Value for parameters, urlencoded.
@@ -87,13 +88,19 @@ class EdurepSearch
 	{
 		switch ( $key )
 		{
-			case "query":
 			case "maximumRecords":
-			case "startRecord":
 			case "recordSchema":
 			case "x-term-drilldown":
 			case "sortKeys":
 			$this->parameters[$key] = $value;
+			break;
+
+			case "query":
+			$this->parameters[$key] = urlencode( $value );
+			break;
+
+			case "startRecord":
+			$this->parameters[$key] = ( $value < 1 ? 1 : $value );
 			break;
 
 			case "x-recordSchema":
@@ -123,6 +130,10 @@ class EdurepSearch
 				case "x-term-drilldown":
 				case "sortKeys":
 				$this->parameters[$key] = $value;
+				break;
+
+				case "startRecord":
+				$this->parameters[$key] = ( $value < 1 ? 1 : $value );
 				break;
 
 				case "x-recordSchemas":
