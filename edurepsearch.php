@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.12
+ * @version 0.13
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -397,8 +397,8 @@ class EdurepResults
 			foreach ( $array["records"][0]["record"] as $record_array )
 			{
 				$record = array();
-				$record["identifier"] = $record_array["recordIdentifier"][0][0];
-				$record["repository"] = substr( $record["identifier"], 0, strpos( $record["identifier"], ":" ) );
+				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
+				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], ":" ) );
 	
 				# merge recorddata, either lom or dc
 				switch ( $this->recordSchema )
@@ -788,8 +788,8 @@ class EdurepResults
 		{
 			if ( array_key_exists( "typicalLearningTime", $educational ) )
 			{
-				$extra["typicallearningtime"] = $educational["typicalLearningTime"][0]["duration"][0][0];
-				$extra["time"] = $extra["typicallearningtime"];
+				$extra["typicallearningtime"] = (int) $educational["typicalLearningTime"][0]["duration"][0][0];
+				$extra["time"] = (int) $extra["typicallearningtime"];
 			}
 		}
 		return $extra;
@@ -816,8 +816,11 @@ class EdurepResults
 						if ( array_key_exists( "id", $taxon ) )
 						{
 							$id = $taxon["id"][0][0];
-							$entry = ( array_key_exists( "entry", $taxon ) ? $taxon["entry"][0][0] : "" );
-							$extra[$purpose][$id] = $entry;
+							if ( preg_match( "/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i", $id ) )
+							{
+								$entry = ( array_key_exists( "entry", $taxon ) ? $taxon["entry"][0][0] : "" );
+								$extra[$purpose][$id] = $entry;
+							}
 						}
 					}
 				}
