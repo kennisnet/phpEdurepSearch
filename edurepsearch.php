@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13
+ * @version 0.13.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -266,6 +266,7 @@ class EdurepResults
 	private $namespaces = array(
 		"local:recorddata" => "rd",
 		"http://www.loc.gov/zing/srw/" => "srw",
+		"http://www.loc.gov/zing/srw/diagnostic/" => "diag",
 		"http://www.imsglobal.org/xsd/imsmd_v1p2" => "lom",
 		"http://purl.org/dc/elements/1.1/" => "dc",
 		"http://www.openarchives.org/OAI/2.0/oai_dc/" => "oai_dc",
@@ -374,6 +375,11 @@ class EdurepResults
 	 */
 	private function loadObject( $array )
 	{
+		if ( array_key_exists( "diagnostics", $array ) )
+		{
+			throw new Exception( "Error in Edurep query: ".$array["diagnostics"][0]["diagnostic"][0]["details"][0][0] );
+		}
+		
 		$this->recordcount = (int) $array["numberOfRecords"][0][0];
 		$this->pagesize = (int) $array["echoedSearchRetrieveRequest"][0]["maximumRecords"][0][0];
 		$this->startrecord = (int) $array["echoedSearchRetrieveRequest"][0]["startRecord"][0][0];
