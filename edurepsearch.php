@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.1
+ * @version 0.13.2
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -11,7 +11,6 @@
  * @todo full result support for lom
  * @todo select language attribute to return
  * @todo combine with collecties.json output for collection name and access
- * @todo edurep error response handling
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -386,7 +385,7 @@ class EdurepResults
 		$this->nextrecord = ( array_key_exists( "nextRecordPosition", $array ) ? (int) $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
 
-		if ( $this->pagesize > 0 )
+		if ( $this->recordcount > 0 )
 		{
 			$this->setNavigation();
 
