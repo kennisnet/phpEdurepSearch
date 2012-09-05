@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.2
+ * @version 0.13.3
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -385,7 +385,7 @@ class EdurepResults
 		$this->nextrecord = ( array_key_exists( "nextRecordPosition", $array ) ? (int) $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
 
-		if ( $this->recordcount > 0 )
+		if ( $this->recordcount > 0 && $this->pagesize > 0 )
 		{
 			$this->setNavigation();
 
