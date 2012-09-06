@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.3
+ * @version 0.13.4
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -277,7 +277,6 @@ class EdurepResults
 		"http://xsd.kennisnet.nl/smd/hreview/1.0/" => "hr" );
 
 	# type definition for each record field
-	# optional fields not included
 	private $record_template = array(
 		"title" => "",
 		"description" => "",
@@ -287,12 +286,16 @@ class EdurepResults
 		"author" => array(),
 		"location" => "",
 		"format" => "",
-		"duration" => "",
+		"duration" => -1,
 		"learningresourcetype" => array(),
 		"context" => array(),
-		"typicallearningtime" => "",
+		"typicallearningtime" => -1,
 		"cost" => "",
-		"rights" => "" );
+		"rights" => "",
+		"competence" => array(),
+		"discipline" => array(),
+		"educationallevel" => array(),
+		"time" => -1 );
 
 	# valid contribute roles to check in extra record
 	private $contribute_roles = array(
@@ -401,7 +404,7 @@ class EdurepResults
 			# get records
 			foreach ( $array["records"][0]["record"] as $record_array )
 			{
-				$record = array();
+				$record = $this->record_template;
 				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
 				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], ":" ) );
 	
