@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.4
+ * @version 0.13.5
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -292,7 +292,7 @@ class EdurepResults
 		"typicallearningtime" => -1,
 		"cost" => "",
 		"rights" => "",
-		"competence" => array(),
+		"competency" => array(),
 		"discipline" => array(),
 		"educationallevel" => array(),
 		"time" => -1 );
