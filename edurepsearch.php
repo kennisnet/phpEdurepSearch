@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.5
+ * @version 0.13.6
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -497,7 +497,7 @@ class EdurepResults
 			{
 				$field_array = $record_array[$lom_category][0][$lom_field];
 				
-				if ( is_string( $this->record_template[$record_key] ) )
+				if ( is_string( $this->record_template[$record_key] ) || is_int( $this->record_template[$record_key] ) )
 				{
 					switch( $field_count )
 					{
