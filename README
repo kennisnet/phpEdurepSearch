@@ -32,6 +32,8 @@ rights.description                      S       x       x
 classification                          M                       x
 
 
+If a format is provided in the metadata, the class will try to aggregate it to an aggregate doctype. By default, it will aggregate common formats to text, image, audio, video, spreadsheet, presentation, pdf, archive, digiboard or non-digital. When it can't aggregate or when there is no format, the value for doctype is "unknown".
+
 If any of technical duration or typicallearningtime exist, they are converted to seconds and aggregated to the time key in the record array. So if any duration is present in the metadata, it's available in the time key, with typicallearningtime taking precedence.
 
 From the available classifications, only Begrippenkader uuid's are returned with the corresponding entry if available.

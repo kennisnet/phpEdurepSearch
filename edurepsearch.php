@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.13.6
+ * @version 0.14
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -295,7 +295,8 @@ class EdurepResults
 		"competency" => array(),
 		"discipline" => array(),
 		"educationallevel" => array(),
-		"time" => -1 );
+		"time" => -1,
+		"doctype" => "unknown" );
 
 	# valid contribute roles to check in extra record
 	private $contribute_roles = array(
@@ -342,6 +343,29 @@ class EdurepResults
 		"currentpage" => "-",
 		"nextpage" => ">",
 		"lastpage" => ">>" );
+
+	# controls aggregated doctypes
+	private $doctypes = array(
+		"text/" => "text",
+		"video/" => "video",
+		"audio/" => "audio",
+		"image/" => "image",
+		"non-digital" => "non-digital",
+		"application/pdf" => "pdf",
+		"application/vnd.ms-powerpoint" => "presentation",
+		"application/vnd.openxmlformats-officedocument.presentationml.presentation" => "presentation",
+		"application/vnd.openxmlformats-officedocument.presentationml.slideshow" => "presentation",
+		"application/vnd.ms-excel" => "spreadsheet",
+		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => "spreadsheet",
+		"application/msword" => "text",
+		"application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "text",
+		"application/zip" => "archive",
+		"application/x-ACTIVprimary3" => "digiboard",
+		"application/x-AS3PE" => "digiboard",
+		"application/x-Inspire" => "digiboard",
+		"application/x-smarttech-notebook" => "digiboard",
+		"application/x-zip-compressed" => "digiboard" );
+
 
 	/**
 	 * Loads the results from the Edurep XML string if the
@@ -407,7 +431,7 @@ class EdurepResults
 				$record = $this->record_template;
 				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
 				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], ":" ) );
-	
+
 				# merge recorddata, either lom or dc
 				switch ( $this->recordSchema )
 				{
@@ -423,7 +447,10 @@ class EdurepResults
 				# merge duration fields
 				# execute before extra merge so technical duration won't overwrite typicallearingtime
 				$record = $this->normalizeDurations( $record );
-	
+
+				# merge aggregate format to doctype
+				$record = $this->aggregateFormat( $record );
+
 				# merge optional extra data
 				if ( in_array( "extra", $this->xrecordSchemas ) ) 
 				{
@@ -708,7 +735,32 @@ class EdurepResults
 
 		return (3600 * $hours) + ( 60 * $minutes ) + $seconds;
 	}
-	
+
+	/**
+	 * Uses the value for format of a record to aggregate
+	 * to a value for doctype. Possible doctypes are defined
+	 * in $doctypes.
+	 * 
+	 * @param array $record Partial record array.
+	 * @return array $record Partial record array.
+	 */
+	private function aggregateFormat( $record )
+	{
+		if ( !empty( $record["format"] ) )
+		{
+			foreach ( $this->doctypes as $mask => $guess_doctype )
+			{
+				if ( substr( $record["format"], 0, strlen( $mask ) ) == $mask )
+				{
+					$record["doctype"] = $guess_doctype;
+					break;
+				}
+			}
+		}
+
+		return $record;
+	}
+
 	/**
 	 * Sets page navigation values. In the navigation
 	 * array, pages are mapped with startrecord values.
