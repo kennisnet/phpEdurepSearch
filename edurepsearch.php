@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.15
+ * @version 0.15.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -473,7 +473,10 @@ class EdurepResults
 				$record = $this->normalizeDurations( $record );
 
 				# merge aggregate format to doctype
-				$record = $this->aggregateFormat( $record );
+				if ( !empty( $record["format"] ) )
+				{
+					$record = array_merge( $record, $this->aggregateFormat( $record["format"] ) );
+				}
 
 				# merge optional extra data
 				if ( in_array( "extra", $this->xrecordSchemas ) ) 
@@ -769,20 +772,19 @@ class EdurepResults
 	 * to a value for doctype. Possible doctypes are defined
 	 * in $doctypes.
 	 * 
-	 * @param array $record Partial record array.
+	 * @param string $format Non-empty format from record.
 	 * @return array $record Partial record array.
 	 */
-	private function aggregateFormat( $record )
+	private function aggregateFormat( $format )
 	{
-		if ( !empty( $record["format"] ) )
+		$record = array();
+		
+		foreach ( $this->doctypes as $mask => $guess_doctype )
 		{
-			foreach ( $this->doctypes as $mask => $guess_doctype )
+			if ( substr( $format, 0, strlen( $mask ) ) == $mask )
 			{
-				if ( substr( $record["format"], 0, strlen( $mask ) ) == $mask )
-				{
-					$record["doctype"] = $guess_doctype;
-					break;
-				}
+				$record["doctype"] = $guess_doctype;
+				break;
 			}
 		}
 
