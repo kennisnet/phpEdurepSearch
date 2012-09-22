@@ -2,13 +2,14 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.14
+ * @version 0.15
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
  * @todo srw interface
  * @todo more source code comments
  * @todo full result support for lom
+ * @todo full result support for smo
  * @todo select language attribute to return
  * @todo combine with collecties.json output for collection name and access
  * 
@@ -276,8 +277,8 @@ class EdurepResults
 		"http://xsd.kennisnet.nl/smd/1.0/" => "smo",
 		"http://xsd.kennisnet.nl/smd/hreview/1.0/" => "hr" );
 
-	# type definition for each record field
-	private $record_template = array(
+	# type definition for each lom field
+	private $lom_template = array(
 		"title" => "",
 		"description" => "",
 		"keyword" => array(),
@@ -298,12 +299,25 @@ class EdurepResults
 		"time" => -1,
 		"doctype" => "unknown" );
 
-	# valid contribute roles to check in extra record
+	# type definition for each smo field
+	private $smo_template = array(
+		"smoid" => "",
+		"supplierid" => "",
+		"userid" => "",
+		"identifier" => "",
+		"summary" => "",
+		"dtreviewed" => "",
+		"rating" => -1,
+		"worst" => -1,
+		"best" => -1,
+		"description" => -1	);
+
+	# valid lom contribute roles to check in extra record
 	private $contribute_roles = array(
 		"author", 
 		"publisher" );
 
-	# valid purpose types to check in extra record
+	# valid lom purpose types to check in extra record
 	private $purpose_types = array(
 		"competency", 
 		"discipline",
@@ -428,21 +442,31 @@ class EdurepResults
 			# get records
 			foreach ( $array["records"][0]["record"] as $record_array )
 			{
-				$record = $this->record_template;
-				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
-				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], ":" ) );
-
-				# merge recorddata, either lom or dc
+				# create basic recorddata, either lom, dc or smo
 				switch ( $this->recordSchema )
 				{
 					case "lom":
+					$record = $this->lom_template;
+					$id_separator = ":";
 					$record = array_merge( $record, $this->getLomRecord( $record_array["recordData"][0]["lom"][0] ) );
 					break;
 	
 					case "oai_dc":
+					$record = $this->lom_template;
+					$id_separator = ":";
 					$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
 					break;
+					
+					case "smo":
+					$record = $this->smo_template;
+					$id_separator = ".";
+					$record = array_merge( $record, $this->getSmoRecord( $record_array["recordData"][0]["smo"][0] ) );
+					break;
 				}
+				
+				# srw identifier info
+				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
+				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], $id_separator ) );			
 
 				# merge duration fields
 				# execute before extra merge so technical duration won't overwrite typicallearingtime
@@ -469,7 +493,10 @@ class EdurepResults
 				if ( in_array( "smo", $this->xrecordSchemas ) )
 				{
 					$pos = array_search( "smo", $this->xrecordSchemas );
-					$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
+					if ( array_key_exists( "smo", $record_array["extraRecordData"][0]["recordData"][$pos] ) )
+					{
+						$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
+					}
 				}
 
 				$this->records[] = $record;
@@ -524,7 +551,7 @@ class EdurepResults
 			{
 				$field_array = $record_array[$lom_category][0][$lom_field];
 				
-				if ( is_string( $this->record_template[$record_key] ) || is_int( $this->record_template[$record_key] ) )
+				if ( is_string( $this->lom_template[$record_key] ) || is_int( $this->lom_template[$record_key] ) )
 				{
 					switch( $field_count )
 					{
@@ -561,7 +588,6 @@ class EdurepResults
 				}
 			}
 		}
-		
 		return $record;
 	}
 
@@ -575,7 +601,7 @@ class EdurepResults
 		{
 			if ( array_key_exists( $mapping_key, $record_array ) )
 			{
-				if ( is_string( $this->record_template[$record_key] ) )
+				if ( is_string( $this->lom_template[$record_key] ) )
 				{
 					$record[$record_key] = $record_array[$mapping_key][0][0];
 				}
@@ -588,6 +614,33 @@ class EdurepResults
 					}
 				}
 			}			
+		}
+		return $record;
+	}
+
+	// walk across record_array and fill record 
+	// also used by getSmos
+	private function getSmoRecord( $record_array )
+	{
+		$record = array();
+		
+		$record["smoid"] = $record_array["smoId"][0][0];
+		$record["supplierid"] = $record_array["supplierId"][0][0];
+		$record["identifier"] = $record_array["hReview"][0]["info"][0][0];
+		
+		# optional fields
+		if ( array_key_exists( "userId", $record_array ) )
+		{
+			$record["userid"] =  $record_array["userId"][0][0];
+		}
+		
+		$hreviewfields = array( "summary", "dtreviewed", "rating", "worst", "best", "description" );
+		foreach ( $hreviewfields as $field )
+		{
+			if ( array_key_exists( $field, $record_array["hReview"][0] ) )
+			{
+				$record[$field] = $record_array["hReview"][0][$field][0][0];
+			}
 		}
 		return $record;
 	}
@@ -629,34 +682,9 @@ class EdurepResults
 	{
 		$record["smo"] = array();
 		
-		# return immediately if no smo's available for a record
-		if ( !array_key_exists( "smo", $array ) )
-		{
-			return $record;
-		}
-		
 		foreach( $array["smo"] as $smo )
 		{
-			$result["smoid"] = $smo["smoId"][0][0];
-			$result["supplierid"] = $smo["supplierId"][0][0];
-			$result["identifier"] = $smo["hReview"][0]["info"][0][0];
-			
-			# optional fields
-			if ( array_key_exists( "userId", $smo ) )
-			{
-				$result["userid"] =  $smo["userId"][0][0];
-			}
-			
-			$hreviewfields = array( "summary", "dtreviewed", "rating", "worst", "best", "description" );
-			foreach ( $hreviewfields as $field )
-			{
-				if ( array_key_exists( $field, $smo["hReview"][0] ) )
-				{
-					$result[$field] = $smo["hReview"][0][$field][0][0];
-				}
-			}
-			
-			$record["smo"][] = $result;
+			$record["smo"][] = array_merge( $this->smo_template, $this->getSmoRecord( $smo ) );
 		}
 		return $record;
 	}

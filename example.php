@@ -41,6 +41,11 @@ $edurep->setParameter( "x-recordSchema", "extra" );
 # perform a search for lom records
 $edurep->lomSearch();
 
+# or perform a search for smo records
+# mind that the smo search does not support all parameters
+# and has different drilldown values 
+# $edurep->smoSearch();
+
 # the raw result is stored in $response
 # call the EdurepResults class to fill the result object
 $results = new EdurepResults( $edurep->response );
