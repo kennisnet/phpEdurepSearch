@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.15.1
+ * @version 0.15.2
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -515,7 +515,7 @@ class EdurepResults
 				{
 					foreach ( $navigator["item"] as $item )
 					{
-						$counts[$item[0]] = $item["@attributes"]["count"];
+						$counts[$item[0]] = (int) $item["@attributes"]["count"];
 					}
 					$this->drilldowns[$navigator["@attributes"]["name"]] = $counts;
 					unset( $counts );
