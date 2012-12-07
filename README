@@ -26,6 +26,7 @@ technical.format                        S       x       x
 technical.duration                      S       x
 educational.learningresourcetype        M       x
 educational.context                     M       x
+educational.typicalagerange             S       x
 educational.typicallearningtime         S       x               x
 rights.cost                             S       x
 rights.description                      S       x       x

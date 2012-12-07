@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.15.2
+ * @version 0.15.3
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -290,6 +290,7 @@ class EdurepResults
 		"duration" => -1,
 		"learningresourcetype" => array(),
 		"context" => array(),
+		"typicalagerange" => "",
 		"typicallearningtime" => -1,
 		"cost" => "",
 		"rights" => "",
@@ -334,6 +335,7 @@ class EdurepResults
 		"duration" => "technical.duration.datetime",
 		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
 		"context" => "educational.context.value.langstring",
+		"typicalagerange" => "educational.typicalagerange.langstring",
 		"typicallearningtime" => "educational.typicallearningtime.datetime",
 		"cost" => "rights.cost.value.langstring",
 		"rights" => "rights.description.langstring" );
