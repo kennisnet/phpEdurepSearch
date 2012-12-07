@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.15.3
+ * @version 0.16
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -12,6 +12,7 @@
  * @todo full result support for smo
  * @todo select language attribute to return
  * @todo combine with collecties.json output for collection name and access
+ * @todo also retrieve rights from vocabfield if description is empty
  * 
  * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -837,6 +838,9 @@ class EdurepResults
 
 	/**
 	 * Contribute helper function for getExtraData() 
+	 * For each role, all names are stored in the name-key array,
+	 * while any dates are aggregated into a single value in the
+	 * timestamp and datetime keys. The latest datetime is chosen.
 	 * 
 	 * @param array $contribute An xml array of the contributes.
 	 * @return array $extra Result array part to be merged.
@@ -847,6 +851,11 @@ class EdurepResults
 		
 		foreach( $this->contribute_roles as $role )
 		{
+			# set working attributes
+			$extra[$role]["name"] = array();
+			$extra[$role]["datetime"] = array();
+			$extra[$role]["timestamp"] = array();
+			
 			foreach( $contributes as $contribute )
 			{
 				if ( array_key_exists( $role, $contribute ) )
@@ -855,12 +864,36 @@ class EdurepResults
 					{
 						if ( array_key_exists( "name", $entity ) )
 						{
-							$extra[$role][] = $entity["name"][0][0];
+							$extra[$role]["name"][] = $entity["name"][0][0];
+						}
+						if ( array_key_exists( "dateTime", $entity ) )
+						{
+							# save timestamp for easy sorting
+							# convert back into datetime later on
+							$date = date_parse_from_format( "Y-m-d\TH:i:s", $entity["dateTime"][0][0] );
+							$extra[$role]["timestamp"][] = mktime( $date["hour"], $date["minute"], $date["second"], $date["month"], $date["day"], $date["year"] );							
 						}
 					}
 				}
 			}
+			
+			# only select the latest datestamp for each role
+			if ( !empty( $extra[$role]["timestamp"] ) )
+			{
+				sort( $extra[$role]["timestamp"], SORT_NUMERIC );
+				$extra[$role]["timestamp"] = array_pop( $extra[$role]["timestamp"] );
+				$extra[$role]["datetime"] = date( "Y-m-d\TH:i:s", $extra[$role]["timestamp"] );
+			}
+			else
+			{
+				# change working array into default empty string
+				$extra[$role]["timestamp"] = "";
+				$extra[$role]["datetime"] = "";
+			}  
 		}
+		
+		
+		
 		return $extra;
 	}
 

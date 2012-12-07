@@ -6,6 +6,7 @@ In EdurepResults you can load a raw XML Edurep resultstring and retrieve a resul
 
 Requirements:
  - PHP 5.1 or higher compiled with curl and simplexml
+ - define a timezone with date_default_timezone_set()
 
 Usage:
 View the example.php for details using this package.

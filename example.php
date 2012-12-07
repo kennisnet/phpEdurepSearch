@@ -3,6 +3,7 @@
  * Example use of Edurep search and results.
  */
 require_once("edurepsearch.php");
+date_default_timezone_set('Europe/Amsterdam');
 
 # create with a valid api key
 $edurep = new EdurepSearch( "12345" );
