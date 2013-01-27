@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.16
+ * @version 0.16.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -14,7 +14,7 @@
  * @todo combine with collecties.json output for collection name and access
  * @todo also retrieve rights from vocabfield if description is empty
  * 
- * Copyright 2012 Wim Muskee <wimmuskee@gmail.com>
+ * Copyright 2012-2013 Wim Muskee <wimmuskee@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -417,7 +417,7 @@ class EdurepResults
 	 * @param array $array XML array.
 	 */
 	private function loadObject( $array )
-	{
+	{	
 		if ( array_key_exists( "diagnostics", $array ) )
 		{
 			throw new Exception( "Error in Edurep query: ".$array["diagnostics"][0]["diagnostic"][0]["details"][0][0] );
@@ -591,6 +591,19 @@ class EdurepResults
 							}
 						break;
 					}
+				}
+			}
+		}
+
+		# include video embed links
+		# similar to oembed
+		# this is temporary and undocumented
+		if ( array_key_exists( "relation", $record_array ) ) {
+			foreach( $record_array["relation"] as $relation ) {
+				
+				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "embed-url" ) {
+					$record["embed"]["type"] = "video";
+					$record["embed"]["url"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 				}
 			}
 		}
