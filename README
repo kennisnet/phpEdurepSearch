@@ -26,6 +26,7 @@ technical.location                      S       x       x
 technical.format                        S       x       x
 technical.duration                      S       x
 educational.learningresourcetype        M       x
+educational.intendedenduserrole         M       x
 educational.context                     M       x
 educational.typicalagerange             S       x
 educational.typicallearningtime         S       x               x

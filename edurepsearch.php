@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.16.1
+ * @version 0.16.2
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -220,8 +220,8 @@ class EdurepSearch
 		$curl = curl_init( $this->request );
 		curl_setopt( $curl, CURLOPT_HEADER, FALSE );
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, TRUE );
-        curl_setopt( $curl, CURLOPT_ENCODING, "gzip,deflate" );
-        $this->response = curl_exec( $curl );
+		curl_setopt( $curl, CURLOPT_ENCODING, "gzip,deflate" );
+		$this->response = curl_exec( $curl );
 
 		if ( !$this->response )
 		{
@@ -290,6 +290,7 @@ class EdurepResults
 		"format" => "",
 		"duration" => -1,
 		"learningresourcetype" => array(),
+		"intendedenduserrole" => array(),
 		"context" => array(),
 		"typicalagerange" => "",
 		"typicallearningtime" => -1,
@@ -298,8 +299,11 @@ class EdurepResults
 		"competency" => array(),
 		"discipline" => array(),
 		"educationallevel" => array(),
+		"educationalobjective" => array(),
 		"time" => -1,
-		"doctype" => "unknown" );
+		"doctype" => "unknown",
+		"embed" => "",
+		"thumbnail" => "");
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -312,7 +316,7 @@ class EdurepResults
 		"rating" => -1,
 		"worst" => -1,
 		"best" => -1,
-		"description" => -1	);
+		"description" => -1 );
 
 	# valid lom contribute roles to check in extra record
 	private $contribute_roles = array(
@@ -323,7 +327,8 @@ class EdurepResults
 	private $purpose_types = array(
 		"competency", 
 		"discipline",
-		"educationallevel" );
+		"educationallevel",
+		"educationalobjective" );
 
 	# defines how a lom record maps on the object record
 	private	$mapping_lom = array(
@@ -335,10 +340,12 @@ class EdurepResults
 		"format" => "technical.format",
 		"duration" => "technical.duration.datetime",
 		"learningresourcetype" => "educational.learningresourcetype.value.langstring",
+		"intendedenduserrole" => "educational.intendedenduserrole.value.langstring",
 		"context" => "educational.context.value.langstring",
 		"typicalagerange" => "educational.typicalagerange.langstring",
 		"typicallearningtime" => "educational.typicallearningtime.datetime",
 		"cost" => "rights.cost.value.langstring",
+		"copyright" => "rights.copyrightandotherrestrictions.value.langstring",
 		"rights" => "rights.description.langstring" );
 
 	# defines how a dc record maps on the object record
@@ -472,8 +479,11 @@ class EdurepResults
 				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], $id_separator ) );			
 
 				# merge duration fields
-				# execute before extra merge so technical duration won't overwrite typicallearingtime
+				# execute before extra merge so technical duration won't overwrite typicallearningtime
 				$record = $this->normalizeDurations( $record );
+
+				# merge copyrightandotherrestrictions and rights description
+				$record = $this->normalizeRights( $record );
 
 				# merge aggregate format to doctype
 				if ( !empty( $record["format"] ) )
@@ -595,15 +605,14 @@ class EdurepResults
 			}
 		}
 
-		# include video embed links
-		# similar to oembed
-		# this is temporary and undocumented
+		# include video embed and image thumbnail links
 		if ( array_key_exists( "relation", $record_array ) ) {
 			foreach( $record_array["relation"] as $relation ) {
-				
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "embed-url" ) {
-					$record["embed"]["type"] = "video";
-					$record["embed"]["url"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+					$record["embed"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+				}
+				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
+					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 				}
 			}
 		}
@@ -749,6 +758,22 @@ class EdurepResults
 		return $record;
 	}
 
+	/**
+	 * Normalizes values from copyrightandotherrestrictions and
+	 * rights description fields. This, specific in the case of
+	 * Creative Commons values which do not occur in the descriptions.
+	 *
+	 * @param array $record Partial record array.
+	 * @return array $record Partial record array.
+	 */
+	private function normalizeRights( $record ) {
+		if ( !empty( $record["copyright"] ) && $record["copyright"][0] != "yes" && $record["copyright"][0] != "no" ) {
+			$record["rights"] = $record["copyright"][0];
+		}
+		unset( $record["copyright"] );
+		return $record;
+	}
+	
 	/**
 	 * Converts PT duration format to seconds. Currently only converts
 	 * values for hours, minutes and seconds.
