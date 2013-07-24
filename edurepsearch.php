@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.16.2
+ * @version 0.16.3
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -773,39 +773,21 @@ class EdurepResults
 		unset( $record["copyright"] );
 		return $record;
 	}
-	
+
 	/**
-	 * Converts PT duration format to seconds. Currently only converts
-	 * values for hours, minutes and seconds.
+	 * Converts PT duration format to seconds.
 	 *
 	 * @param string $pt_time Duration in PT format.
 	 * @return integer $seconds PT duration format converted to seconds.
 	 */
-	private function normalizeDuration( $pt_time )
-	{
-		$hours = 0;
-		$minutes = 0;
-		$seconds = 0;
-
-		preg_match_all( "/PT([0-9]+H)?([0-9]+M)?([0-9]+S)?/", $pt_time, $matches );
-		
-		if ( !empty( $matches[0] ) )
-		{
-			if ( !empty( $matches[1] ) )
-			{
-				$hours = preg_replace( "/[A-Z]/" , "" , $matches[1][0] );
-			}
-			if ( !empty( $matches[2] ) )
-			{
-				$minutes = preg_replace( "/[A-Z]/" , "" , $matches[2][0] );
-			}
-			if ( !empty( $matches[3] ) )
-			{
-				$seconds = preg_replace( "/[A-Z]/" , "" , $matches[3][0] );
-			}
-		}
-
-		return (3600 * $hours) + ( 60 * $minutes ) + $seconds;
+	private function normalizeDuration( $pt_time ) {
+		$interval = new DateInterval( $pt_time );
+		return ($interval->y * 365 * 24 * 60 * 60) +
+			($interval->m * 30 * 24 * 60 * 60) +
+			($interval->d * 24 * 60 * 60) +
+			($interval->h * 60 * 60) +
+			($interval->i * 60) +
+			$interval->s;
 	}
 
 	/**
