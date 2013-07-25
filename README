@@ -34,9 +34,14 @@ rights.cost                             S       x
 rights.description                      S       x       x
 classification                          M                       x
 
+Pagination:
+Preformatted navigation values are available in the Results class. There is an Edurep set maximum of pages that can be requested, set to startRecord of 4000. An exception will be given if the startRecord is equal or higher, but the navigation option will be provided. This trigger can be used to inform the user of the arrival of the last page (because the recordtotal can be higher).
 
+Format:
 If a format is provided in the metadata, the class will try to aggregate it to an aggregate doctype. By default, it will aggregate common formats to text, image, audio, video, spreadsheet, presentation, pdf, archive, digiboard or non-digital. When it can't aggregate or when there is no format, the value for doctype is "unknown".
 
+Duration:
 If any of technical duration or typicallearningtime exist, they are converted to seconds and aggregated to the time key in the record array. So if any duration is present in the metadata, it's available in the time key, with typicallearningtime taking precedence.
 
+Classification:
 From the available classifications, only Begrippenkader uuid's are returned with the corresponding entry if available.

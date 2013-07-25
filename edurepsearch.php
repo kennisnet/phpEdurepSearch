@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.18
+ * @version 0.19
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -48,6 +48,12 @@ class EdurepSearch
 
 	# extra record schema's
 	private $recordschemas = array();
+
+	# maximum startRecord allowed by Edurep
+	private $maxstartrecord = 4000;
+	
+	# internal counter for available startrecords
+	private $availablestartrecords = 4000;
 
 	# internal counter for curl retries
 	private $curlretries = 0;
@@ -106,7 +112,13 @@ class EdurepSearch
 			break;
 
 			case "startRecord":
-			$this->parameters[$key] = ( $value < 1 ? 1 : $value );
+			if ( $value >= 1 && $value <= 4000 ) {
+				$this->parameters[$key] = $value;
+				$this->availablestartrecords = $this->maxstartrecord - $value;
+			}
+			else {
+				throw new UnexpectedValueException( "The value for startRecords should be between 1 and 4000.", 23 );
+			}
 			break;
 
 			case "x-recordSchema":
@@ -150,13 +162,20 @@ class EdurepSearch
 	
 	/**
 	 * Create an Edurep query url based on path. This url does
-	 * not contain the host (added in curl request). 
+	 * not contain the host (added in curl request). It makes sure
+	 * the startRecord does not exceed the Edurep maximum.
 	 *
 	 * @param string $path Either /edurep/sruns or /smo/sruns.
 	 * @return string Query url without host.
 	 */
 	private function getQuery( $path )
 	{
+		# making sure the startRecord/maximumRecord combo does
+		# not trigger an exception.
+		if ( $this->availablestartrecords < $this->parameters["maximumRecords"] ) {
+			$this->parameters["maximumRecords"] = $this->availablestartrecords;
+		}
+
 		# setting arguments
 		$arguments = array();
 		foreach ( $this->parameters as $key => $value )
@@ -230,6 +249,9 @@ class EdurepResults
 	# private result vars
 	private $recordSchema = "";
 	private $xrecordSchemas = array();
+
+	# maximum startRecord allowed by Edurep
+	private $maxstartrecord = 4000;
 
 	# namespaces used in edurep results
 	private $namespaces = array(
@@ -783,41 +805,43 @@ class EdurepResults
 	/**
 	 * Sets page navigation values. In the navigation
 	 * array, pages are mapped with startrecord values.
+	 * This function makes sure that no unavailable navigation
+	 * options are generated due to Edurep's max startRecord.
 	 */
 	private function setNavigation()
 	{
 		$nr_of_pages = ceil( $this->recordcount/$this->pagesize );
 		$current_page = ( empty( $this->nextrecord ) ? $nr_of_pages : ceil( ($this->nextrecord - 1)/$this->pagesize ) );
 
-		if ( $current_page > 1 )
-		{
-			$this->navigation[$this->navigation_text["firstpage"]] = 1;
-            $this->navigation[$this->navigation_text["previouspage"]] = $this->selectStartrecord( $current_page - 1 );
-        }
-	
-		if ( $current_page > 2 ) 
-		{
+		$this->navigation[$this->navigation_text["firstpage"]] = 1;
+
+		if ( $current_page > 1 ) {
+			$this->navigation[$this->navigation_text["previouspage"]] = $this->selectStartrecord( $current_page - 1 );
+		}
+
+		if ( $current_page > 2 ) {
 			$this->navigation[$current_page - 2] = $this->selectStartrecord( $current_page - 2 );
 		}
-		if ( $current_page > 1 )
-		{
+
+		if ( $current_page > 1 ) {
 			$this->navigation[$current_page - 1] = $this->selectStartrecord( $current_page - 1 );
         }
 		
 		$this->navigation[$this->navigation_text["currentpage"]] = $this->startrecord;
-		
-		if ( $current_page < $nr_of_pages )
-		{
-			$this->navigation[$current_page + 1] = $this->selectStartrecord( $current_page + 1 );
+
+		if ( $current_page < $nr_of_pages ) {
+			$this->navigation[$current_page + 1] = $this->nextrecord;
 		}
-		if ( $current_page < $nr_of_pages - 1 ) 
-		{
+
+		if ( $current_page < $nr_of_pages - 1 && $this->nextrecord < $this->maxstartrecord  ) {
 			$this->navigation[$current_page + 2] = $this->selectStartrecord( $current_page + 2 );
 		}
 
-		if ( $current_page < $nr_of_pages )
-		{
+		if ( $current_page < $nr_of_pages ) {
 			$this->navigation[$this->navigation_text["nextpage"]] = $this->nextrecord;
+		}
+
+		if ( $this->selectStartrecord( $nr_of_pages ) <= $this->maxstartrecord ) {
 			$this->navigation[$this->navigation_text["lastpage"]] = $this->selectStartrecord( $nr_of_pages );
 		}
 	}
