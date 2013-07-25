@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.17
+ * @version 0.18
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -12,7 +12,6 @@
  * @todo full result support for smo
  * @todo select language attribute to return
  * @todo combine with collecties.json output for collection name and access
- * @todo also retrieve rights from vocabfield if description is empty
  * 
  * Copyright 2012-2013 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -116,40 +115,6 @@ class EdurepSearch
 
 			default:
 			throw new InvalidArgumentException( "Unsupported Edurep parameter: ".$key, 1 );
-		}
-	}
-
-	/**
-	 * Fill local parameters with external parameters array.
-	 *
-	 * @param array $parameters Same as output for getParameters().
-	 */
-	public function loadParameters( $parameters )
-	{
-		foreach ( $parameters as $key => $value )
-		{
-			switch ( $key )
-			{
-				case "query":
-				case "maximumRecords":
-				case "startRecord":
-				case "recordSchema":
-				case "x-term-drilldown":
-				case "sortKeys":
-				$this->parameters[$key] = $value;
-				break;
-
-				case "startRecord":
-				$this->parameters[$key] = ( $value < 1 ? 1 : $value );
-				break;
-
-				case "x-recordSchemas":
-				foreach( $value as $xrecordschema )
-				{
-					$this->recordschemas[] = $xrecordschema;
-				}
-				break;
-			}
 		}
 	}
 
