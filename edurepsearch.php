@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.19
+ * @version 0.20
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -245,6 +245,7 @@ class EdurepResults
 	public $nextrecord = 0;
 	public $records = array();
 	public $drilldowns = array();
+	public $navigation = array();
 
 	# private result vars
 	private $recordSchema = "";
@@ -411,13 +412,15 @@ class EdurepResults
 	 *
 	 * @param array $array XML array.
 	 */
-	private function loadObject( $array )
-	{	
-		if ( array_key_exists( "diagnostics", $array ) )
-		{
-			throw new Exception( "Error in Edurep query: ".$array["diagnostics"][0]["diagnostic"][0]["details"][0][0] );
+	private function loadObject( $array ) {
+		if ( array_key_exists( "diagnostics", $array ) ) {
+			$this->getDiagnostics( $array["diagnostics"][0]["diagnostic"][0]["details"][0][0] );
 		}
-		
+		# also checking raw details due to bug in Edurep
+		if ( array_key_exists( "details", $array ) ) {
+			$this->getDiagnostics( $array["details"][0][0] );
+		}
+
 		$this->recordcount = (int) $array["numberOfRecords"][0][0];
 		$this->pagesize = (int) $array["echoedSearchRetrieveRequest"][0]["maximumRecords"][0][0];
 		$this->startrecord = (int) $array["echoedSearchRetrieveRequest"][0]["startRecord"][0][0];
@@ -523,6 +526,28 @@ class EdurepResults
 				}
 			}
 		}
+	}
+
+	/**
+	 * Intended to retrieve different exceptions from
+	 * a bad query.
+	 *
+	 * @param string $details Diagnostics details string.
+	 */
+	private function getDiagnostics( $details ) {
+		if ( substr_count($details, 'Postfix', 0, 7) == 1 ) {
+			throw new UnexpectedValueException( "Postfix query not allowed.", 25 );
+		}
+		elseif ( substr_count($details, 'Prefix query only allowed with one wildcard', 0, 43) == 1 ) {
+			throw new UnexpectedValueException( "Prefix query only allowed with one wildcard.", 26 );
+		}
+		elseif ( substr_count($details, 'Prefix query only allowed with a minimum of 2', 0, 45) == 1 ) {
+			throw new UnexpectedValueException( "Prefix query only allowed with a minimum of 2 characters.", 27 );
+		}
+		else {
+			throw new UnexpectedValueException( "Error in Edurep query: ".$details, 26 );
+		}
+		throw new UnexpectedValueException( "Error in Edurep query: ".$details, 24 );
 	}
 
 	private function getLomRecord( $record_array )

@@ -45,3 +45,19 @@ If any of technical duration or typicallearningtime exist, they are converted to
 
 Classification:
 From the available classifications, only Begrippenkader uuid's are returned with the corresponding entry if available.
+
+Exceptions:
+The Search and Result classes can trigger multiple exceptions:
+
+class       exception                   code    description
+---------------------------------------------------------------------
+Search      InvalidArgumentException    1       unsupported parameter
+Search      NetworkException            2       network error
+Search      XmlException                3       XML parse error
+Search      UnexpectedValueException    21      invalid API key
+Search      UnexpectedValueException    22      invalid maximumRecords
+Search      UnexpectedValueException    23      invalid startRecord
+Results     UnexpectedValueException    24      error in query
+Results     UnexpectedValueException    25      postfix query
+Results     UnexpectedValueException    26      prefix query with 1+ wildcard
+Results     UnexpectedValueException    27      prefix query with 1 character
