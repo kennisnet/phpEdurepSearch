@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.16.3
+ * @version 0.17
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -57,15 +57,12 @@ class EdurepSearch
 	private $maxcurlretries = 3;
 
 
-	public function __construct( $api_key )
-	{
-		if ( !empty( $api_key ) )
-		{
+	public function __construct( $api_key ) {
+		if ( !empty( $api_key ) ) {
 			$this->parameters["x-api-key"] = $api_key;
 		}
-		else
-		{
-			throw new InvalidArgumentException( "Use a valid Edurep API key" );
+		else {
+			throw new UnexpectedValueException( "Use a valid Edurep API key", 21 );
 		}
 	}
 
@@ -91,6 +88,14 @@ class EdurepSearch
 		switch ( $key )
 		{
 			case "maximumRecords":
+			if ( $value >= 0 && $value <= 100 ) {
+				$this->parameters[$key] = $value;
+			}
+			else {
+				throw new UnexpectedValueException( "The value for maximumRecords should be between 0 and 100.", 22 );
+			}
+			break;
+			
 			case "recordSchema":
 			case "x-term-drilldown":
 			case "sortKeys":
@@ -110,7 +115,7 @@ class EdurepSearch
 			break;
 
 			default:
-			throw new InvalidArgumentException( "Unknown Edurep parameter: ".$key );
+			throw new InvalidArgumentException( "Unsupported Edurep parameter: ".$key, 1 );
 		}
 	}
 
@@ -234,14 +239,12 @@ class EdurepSearch
 					$this->curlretries++;
 					$this->executeQuery( $query );
 				}
-				else
-				{
-					throw new Exception( "Curl error: ".curl_error( $curl ).", high server load." );
+				else {
+					throw new NetworkException( curl_error( $curl ) );
 				}
 			}
-			else
-			{
-				throw new Exception( "Curl error: ".curl_error( $curl ) );
+			else {
+				throw new NetworkException( curl_error( $curl ) );
 			}
 		}
 
@@ -407,13 +410,11 @@ class EdurepResults
 		# create simple xml object
 		$xml = simplexml_load_string( $xmlstring );
 
-		if ( !is_object( $xml ) )
-		{
-			throw new Exception( "Error on creating SimpleXML object." );
-		}
-		else
-		{
+		if ( is_object( $xml ) ) {
 			$this->loadObject( $this->load( $xml ) );
+		}
+		else {
+			throw new XmlException();
 		}
 	}
 	
@@ -911,9 +912,7 @@ class EdurepResults
 				$extra[$role]["datetime"] = "";
 			}  
 		}
-		
-		
-		
+
 		return $extra;
 	}
 
@@ -1064,4 +1063,17 @@ class EdurepResults
 		return $arr;
 	}
 }
+
+class NetworkException extends Exception {
+	public function __construct( $message ) {
+		parent::__construct( $message, 2 );
+	}
+}
+
+class XmlException extends Exception {
+	public function __construct() {
+		parent::__construct( "Error on creating SimpleXML object.", 3 );
+	}
+}
+
 ?>
