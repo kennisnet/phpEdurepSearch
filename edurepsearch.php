@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.21
+ * @version 0.21.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -189,7 +189,7 @@ class EdurepSearch
 		if ( empty( $this->query ) ) {
 			$this->setQuery();
 		}
-		echo $this->query;
+		return $this->query;
 	}
 	
 	/**
