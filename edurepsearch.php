@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.20
+ * @version 0.21
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -11,7 +11,6 @@
  * @todo full result support for lom
  * @todo full result support for smo
  * @todo select language attribute to return
- * @todo combine with collecties.json output for collection name and access
  * 
  * Copyright 2012-2013 Wim Muskee <wimmuskee@gmail.com>
  *
@@ -29,6 +28,9 @@
  */
 class EdurepSearch
 {
+	# contains the query part, excluding the host
+	public $query = "";
+	
 	# contains the raw curl request, the url
 	public $request = "";
 
@@ -37,6 +39,9 @@ class EdurepSearch
 
 	# baseurl for edurep production
 	private $baseurl = "http://wszoeken.edurep.kennisnet.nl:8000/";
+
+	# search path
+	private $path = "edurep/sruns";
 
 	# default search parameters, optional ones can be set by setParameter
 	private $parameters = array(
@@ -71,16 +76,15 @@ class EdurepSearch
 		}
 	}
 
-	public function lomSearch()
-	{
-		$this->executeQuery( $this->getQuery( "edurep/sruns" ) );
+	/*
+	 * This function is a wrapper to set the query from the
+	 * parameters and execute the query to the server.
+	 */
+	public function search() {
+		$this->setQuery();
+		$this->executeQuery();
 	}
-
-	public function smoSearch()
-	{
-		$this->executeQuery( $this->getQuery( "smo/sruns" ) );
-	}
-
+	
 	/**
 	 * Set Edurep parameters for the request.
 	 * The query parameter should be provided urldecoded.
@@ -154,22 +158,50 @@ class EdurepSearch
 	{
 		$this->baseurl = $baseurl;
 	}
-	
+
+	/**
+	 * Sets the search type by inputting either lom or smo.
+	 * The search type (determined by path) is set to lom
+	 * by default.
+	 *
+	 * @param string $type The search type.
+	 */
+	public function setSearchType( $type ) {
+		switch ( $type ) {
+			case "lom": $this->path = "edurep/sruns"; break;
+			case "smo": $this->path = "smo/sruns"; break;
+			default: $this->path = "edurep/sruns";
+		}
+	}
+
 	public function setRecordpacking( $recordpacking )
 	{
 		$this->parameters["recordPacking"] = $recordpacking;
 	}
-	
+
 	/**
-	 * Create an Edurep query url based on path. This url does
-	 * not contain the host (added in curl request). It makes sure
-	 * the startRecord does not exceed the Edurep maximum.
+	 * Returns the Edurep query url. If the query
+	 * is not generated, it will be.
 	 *
-	 * @param string $path Either /edurep/sruns or /smo/sruns.
 	 * @return string Query url without host.
 	 */
-	private function getQuery( $path )
-	{
+	public function getQuery() {
+		if ( empty( $this->query ) ) {
+			$this->setQuery();
+		}
+		echo $this->query;
+	}
+	
+	/**
+	 * Create an Edurep query url when empty. This url does
+	 * not contain the host (added in curl request). It makes sure
+	 * the startRecord does not exceed the Edurep maximum.
+	 */
+	private function setQuery() {
+		if ( !empty($this->query ) ) {
+			return TRUE;
+		}
+
 		# making sure the startRecord/maximumRecord combo does
 		# not trigger an exception.
 		if ( $this->availablestartrecords < $this->parameters["maximumRecords"] ) {
@@ -178,21 +210,17 @@ class EdurepSearch
 
 		# setting arguments
 		$arguments = array();
-		foreach ( $this->parameters as $key => $value )
-		{
+		foreach ( $this->parameters as $key => $value ) {
 			$arguments[] = $key."=".$value;
 		}
 		
 		# initial path and query
-		$query = $path."?".implode( "&", $arguments );
+		$this->query = $this->path."?".implode( "&", $arguments );
 		
 		# adding x-recordSchema's
-		foreach ( array_unique( $this->recordschemas ) as $recordschema )
-		{
-			$query .= "&x-recordSchema=".$recordschema;
+		foreach ( array_unique( $this->recordschemas ) as $recordschema ) {
+			$this->query .= "&x-recordSchema=".$recordschema;
 		}
-		
-		return $query;
 	}
 	
 	/**
@@ -202,9 +230,9 @@ class EdurepSearch
 	 *
 	 * @param string $query Edurep query url without host.
 	 */
-	private function executeQuery( $query )
+	private function executeQuery()
 	{
-		$this->request = $this->baseurl.$query;
+		$this->request = $this->baseurl.$this->query;
 
 		$curl = curl_init( $this->request );
 		curl_setopt( $curl, CURLOPT_HEADER, FALSE );

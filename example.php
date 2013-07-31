@@ -12,6 +12,11 @@ $edurep = new EdurepSearch( "12345" );
 # the default baseurl points to production
 # $edurep->setBaseurl( "http://anotheredurepurl.nl" );
 
+# perform a search for smo records
+# mind that the smo search does not support all parameters
+# and has different drilldown values 
+# $edurep->setSearchType("smo");
+
 # set search terms, default edurep
 # should be provided urldecoded, the class will encode it
 $edurep->setParameter( "query", "math" );
@@ -39,13 +44,12 @@ $edurep->setParameter( "x-recordSchema", "smbAggregatedData" );
 # in the results.
 $edurep->setParameter( "x-recordSchema", "extra" );
 
-# perform a search for lom records
-$edurep->lomSearch();
+# get the query (without host) before the search
+# for caching purposes
+$query = $edurep->getQuery();
 
-# or perform a search for smo records
-# mind that the smo search does not support all parameters
-# and has different drilldown values 
-# $edurep->smoSearch();
+# perform a search for lom records
+$edurep->search();
 
 # the raw result is stored in $response
 # call the EdurepResults class to fill the result object
@@ -53,6 +57,9 @@ $results = new EdurepResults( $edurep->response );
 
 # print the result records
 print_r( $results->records );
+
+# print the result drillldowns
+print_r( $results->drilldowns );
 
 # print startrecord values for a navigation bar
 print_r( $results->navigation );
