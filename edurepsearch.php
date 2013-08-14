@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.21.1
+ * @version 0.22
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -306,7 +306,7 @@ class EdurepResults
 		"publisher" => array(),
 		"author" => array(),
 		"location" => "",
-		"format" => "",
+		"format" => array(),
 		"duration" => -1,
 		"learningresourcetype" => array(),
 		"intendedenduserrole" => array(),
@@ -350,7 +350,7 @@ class EdurepResults
 		"educationalobjective" );
 
 	# defines how a lom record maps on the object record
-	private	$mapping_lom = array(
+	private $mapping_lom = array(
 		"title" => "general.title.langstring",
 		"description" => "general.description.langstring",
 		"keyword" => "general.keyword.langstring",
@@ -368,7 +368,7 @@ class EdurepResults
 		"rights" => "rights.description.langstring" );
 
 	# defines how a dc record maps on the object record
-	private	$mapping_dc = array(
+	private $mapping_dc = array(
 		"title" => "title",
 		"description" => "description",
 		"keyword" => "subject",
@@ -505,8 +505,8 @@ class EdurepResults
 				$record = $this->normalizeRights( $record );
 
 				# merge aggregate format to doctype
-				if ( !empty( $record["format"] ) )
-				{
+				if ( !empty( $record["format"] ) ) {
+					$record["format"] = array_unique( $record["format"] );
 					$record = array_merge( $record, $this->aggregateFormat( $record["format"] ) );
 				}
 
@@ -832,26 +832,25 @@ class EdurepResults
 	}
 
 	/**
-	 * Uses the value for format of a record to aggregate
+	 * Uses the value for formats of a record to aggregate
 	 * to a value for doctype. Possible doctypes are defined
 	 * in $doctypes.
 	 * 
-	 * @param string $format Non-empty format from record.
+	 * @param string $formats Non-empty format from record.
 	 * @return array $record Partial record array.
 	 */
-	private function aggregateFormat( $format )
+	private function aggregateFormat( $formats )
 	{
 		$record = array();
 		
-		foreach ( $this->doctypes as $mask => $guess_doctype )
-		{
-			if ( substr( $format, 0, strlen( $mask ) ) == $mask )
-			{
-				$record["doctype"] = $guess_doctype;
-				break;
+		foreach( $formats as $format ) {
+			foreach ( $this->doctypes as $mask => $guess_doctype ) {
+				if ( substr( $format, 0, strlen( $mask ) ) == $mask ) {
+					$record["doctype"][] = $guess_doctype;
+					break;
+				}
 			}
 		}
-
 		return $record;
 	}
 
