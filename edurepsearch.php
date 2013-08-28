@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.22
+ * @version 0.23
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -322,7 +322,8 @@ class EdurepResults
 		"time" => -1,
 		"doctype" => "unknown",
 		"embed" => "",
-		"thumbnail" => "");
+		"thumbnail" => "",
+		"icon" => "");
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -646,7 +647,7 @@ class EdurepResults
 			}
 		}
 
-		# include video embed and image thumbnail links
+		# include video embed, icon and image thumbnail links
 		if ( array_key_exists( "relation", $record_array ) ) {
 			foreach( $record_array["relation"] as $relation ) {
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "embed-url" ) {
@@ -654,6 +655,9 @@ class EdurepResults
 				}
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
 					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+				}
+				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "haspart" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "preview-image" ) {
+					$record["icon"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 				}
 			}
 		}
