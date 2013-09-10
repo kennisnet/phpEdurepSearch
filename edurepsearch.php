@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.24
+ * @version 0.24.1
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -325,7 +325,7 @@ class EdurepResults
 		"embed" => "",
 		"thumbnail" => "",
 		"icon" => "",
-		"preview-image" => "");
+		"previewimage" => "");
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -654,11 +654,11 @@ class EdurepResults
 				}
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "haspart" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "preview-image" ) {
 					$record["icon"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-					$record["preview-image"] = $record["icon"];
+					$record["previewimage"] = $record["icon"];
 				}
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
 					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-					$record["preview-image"] = $record["thumbnail"];
+					$record["previewimage"] = $record["thumbnail"];
 				}
 			}
 		}
