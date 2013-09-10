@@ -19,7 +19,8 @@ The following table shows the currently supported LOM response fields; if the fi
 general.title                           S       x       x
 general.language                        M       x       x
 general.description                     S       x       x
-general.language                        M       x       x
+general.keyword                         M       x       x
+general.aggregationlevel                S       x
 lifecycle.contribute.author             M               x       x
 lifecycle.contribute.publisher          M               x       x
 technical.location                      S       x       x

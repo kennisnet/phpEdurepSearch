@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.23.1
+ * @version 0.24
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -303,6 +303,7 @@ class EdurepResults
 		"description" => "",
 		"keyword" => array(),
 		"language" => array(),
+		"aggregationlevel" => "",
 		"publisher" => array(),
 		"author" => array(),
 		"location" => "",
@@ -323,7 +324,8 @@ class EdurepResults
 		"doctype" => "unknown",
 		"embed" => "",
 		"thumbnail" => "",
-		"icon" => "");
+		"icon" => "",
+		"preview-image" => "");
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -356,6 +358,7 @@ class EdurepResults
 		"description" => "general.description.langstring",
 		"keyword" => "general.keyword.langstring",
 		"language" => "general.language",
+		"aggregationlevel" => "general.aggregationlevel.value.langstring",
 		"location" => "technical.location",
 		"format" => "technical.format",
 		"duration" => "technical.duration.datetime",
@@ -643,16 +646,19 @@ class EdurepResults
 		}
 
 		# include video embed, icon and image thumbnail links
+		# merge icon and thumbnail into generic preview-image
 		if ( array_key_exists( "relation", $record_array ) ) {
 			foreach( $record_array["relation"] as $relation ) {
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "embed-url" ) {
 					$record["embed"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 				}
-				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
-					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-				}
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "haspart" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "preview-image" ) {
 					$record["icon"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+					$record["preview-image"] = $record["icon"];
+				}
+				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
+					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+					$record["preview-image"] = $record["thumbnail"];
 				}
 			}
 		}
