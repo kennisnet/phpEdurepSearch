@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.24.1
+ * @version 0.25
  * @link http://edurepdiensten.wiki.kennisnet.nl
  * @example phpEdurepSearch/example.php
  *
@@ -84,7 +84,25 @@ class EdurepSearch
 		$this->setQuery();
 		$this->executeQuery();
 	}
-	
+
+	/*
+	 * Simulate a search that was cached by the requesting
+	 * application. The application got the results from a local
+	 * cache, but performs an Edurep query to let Edurep keep
+	 * the statistics.
+	 * The exact same query as in the instance is fired, but with
+	 * 0 records and an x-cache parameter.
+	 */
+	public function cacheSearch() {
+		if ( !empty( $this->query ) ) { 
+			$this->query = "";
+			$this->parameters["maximumRecords"] = 0;
+			$this->parameters["x-cache"] = 1;
+			$this->search();
+			$this->executeQuery();
+		}
+	}
+
 	/**
 	 * Set Edurep parameters for the request.
 	 * The query parameter should be provided urldecoded.
