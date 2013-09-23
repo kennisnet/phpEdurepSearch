@@ -11,6 +11,7 @@
  * @todo full result support for lom
  * @todo full result support for smo
  * @todo select language attribute to return
+ * @todo take care of TZ in datetime calculation
  * 
  * Copyright 2012-2013 Wim Muskee <wimmuskee@gmail.com>
  *
