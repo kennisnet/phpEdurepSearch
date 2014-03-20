@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.26
+ * @version 0.26.1
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -788,42 +788,14 @@ class EdurepResults
 
 	/**
 	 * Normalizes PT duration fields from technical duration and
-	 * typicallearningtime to seconds, and fill aggregated object
-	 * time.
+	 * typicallearningtime.
 	 *
 	 * @param array $record Partial record array.
 	 * @return array $record Partial record array.
 	 */
-	private function normalizeDurations( $record )
-	{
-		if ( array_key_exists( "duration", $record ) && substr( $record["duration"], 0, 2 ) == "PT" )
-		{
-			$time = $this->normalizeDuration( $record["duration"] );
-			if ( !empty( $time ) )
-			{
-				$record["duration"] = $time;
-				$record["time"] = $time;
-			}
-			else
-			{
-				unset( $record["duration"] );
-			}
-		}
-		
-		if ( array_key_exists( "typicallearningtime", $record ) && substr( $record["typicallearningtime"], 0, 2 ) == "PT" )
-		{
-			$time = $this->normalizeDuration( $record["typicallearningtime"] );
-			if ( !empty( $time ) )
-			{
-				$record["typicallearningtime"] = $time;
-				$record["time"] = $time;
-			}
-			else
-			{
-				unset( $record["typicallearningtime"] );
-			}
-		}
-		
+	private function normalizeDurations( $record ) {
+		$record = $this->normalizeDuration( $record, "duration" );
+		$record = $this->normalizeDuration( $record, "typicallearningtime" );
 		return $record;
 	}
 
@@ -844,12 +816,35 @@ class EdurepResults
 	}
 
 	/**
+	 * Normalizes PT duration fields to seconds, and fill
+	 * aggregated object time.
+	 *
+	 * @param array $record Partial record array.
+	 * @param string $field Which duration field.
+	 * @return array $record Partial record array.
+	 */
+	private function normalizeDuration( $record, $field ) {
+		if ( array_key_exists( $field, $record ) && substr( $record[$field], 0, 2 ) == "PT" ) {
+			$time = $this->durationToSeconds( $record[$field] );
+			
+			if ( !empty( $time ) ) {
+				$record[$field] = $time;
+				$record["time"] = $time;
+			}
+			else {
+				unset( $record[$field] );
+			}
+		}
+		return $record;
+	}
+
+	/**
 	 * Converts PT duration format to seconds.
 	 *
 	 * @param string $pt_time Duration in PT format.
 	 * @return integer $seconds PT duration format converted to seconds.
 	 */
-	private function normalizeDuration( $pt_time ) {
+	private function durationToSeconds( $pt_time ) {
 		$interval = new DateInterval( $pt_time );
 		return ($interval->y * 365 * 24 * 60 * 60) +
 			($interval->m * 30 * 24 * 60 * 60) +
