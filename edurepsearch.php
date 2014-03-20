@@ -2,8 +2,8 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.25
- * @link http://edurepdiensten.wiki.kennisnet.nl
+ * @version 0.26
+ * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
  * @todo srw interface
@@ -13,7 +13,7 @@
  * @todo select language attribute to return
  * @todo take care of TZ in datetime calculation
  * 
- * Copyright 2012-2013 Wim Muskee <wimmuskee@gmail.com>
+ * Copyright 2012-2014 Wim Muskee <wimmuskee@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -344,7 +344,8 @@ class EdurepResults
 		"embed" => "",
 		"thumbnail" => "",
 		"icon" => "",
-		"previewimage" => "");
+		"previewimage" => "",
+		"landingpage" => "");
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -664,7 +665,7 @@ class EdurepResults
 			}
 		}
 
-		# include video embed, icon and image thumbnail links
+		# include video embed, icon, landingpage and image thumbnail links
 		# merge icon and thumbnail into generic preview-image
 		if ( array_key_exists( "relation", $record_array ) ) {
 			foreach( $record_array["relation"] as $relation ) {
@@ -678,6 +679,9 @@ class EdurepResults
 				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
 					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 					$record["previewimage"] = $record["thumbnail"];
+				}
+				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "landingpage" ) {
+					$record["landingpage"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
 				}
 			}
 		}
