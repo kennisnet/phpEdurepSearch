@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.26.2
+ * @version 0.26.3
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -667,21 +667,22 @@ class EdurepResults
 		# include video embed, icon, landingpage and image thumbnail links
 		# merge icon and thumbnail into generic preview-image
 		if ( array_key_exists( "relation", $record_array ) ) {
+			$valid_types = array( "embed", "icon", "thumbnail", "landingpage" );
+			
 			foreach( $record_array["relation"] as $relation ) {
-				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "embed-url" ) {
-					$record["embed"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+				$type = $relation["kind"][0]["value"][0]["langstring"][0][0];
+				$value = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
+				
+				if ( in_array( $type, $valid_types ) && !empty( $value ) ) {
+					$record[$type] = $value;
 				}
-				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "haspart" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "preview-image" ) {
-					$record["icon"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-					$record["previewimage"] = $record["icon"];
-				}
-				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "hasformat" && $relation["resource"][0]["description"][0]["langstring"][0][0] == "thumbnail" ) {
-					$record["thumbnail"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-					$record["previewimage"] = $record["thumbnail"];
-				}
-				if ( $relation["kind"][0]["value"][0]["langstring"][0][0] == "landingpage" ) {
-					$record["landingpage"] = $relation["resource"][0]["catalogentry"][0]["entry"][0]["langstring"][0][0];
-				}
+			}
+			# merge
+			if ( !empty( $record["icon"] ) ) {
+				$record["previewimage"] = $record["icon"];
+			}
+			if ( !empty( $record["thumbnail"] ) ) {
+				$record["previewimage"] = $record["thumbnail"];
 			}
 		}
 		return $record;
@@ -709,7 +710,7 @@ class EdurepResults
 						$record[$record_key][] = $value[0];
 					}
 				}
-			}			
+			}
 		}
 		return $record;
 	}
@@ -765,13 +766,12 @@ class EdurepResults
 		return $extra;
 	}
 
-	private function getSmbAggregatedData( $array )
-	{
+	private function getSmbAggregatedData( $array ) {
 		$sad["nrofreviews"] = (int) $array["numberOfReviews"][0][0];
 		$sad["nrofratings"] = (int) $array["numberOfRatings"][0][0];
 		$sad["nroftags"] = (int) $array["numberOfTags"][0][0];
 		$sad["rating"] = (float) $array["averageNormalizedRating"][0][0];
-		return $sad;	
+		return $sad;
 	}
 
 	private function getSmos( $array )
