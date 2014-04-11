@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.27.2
+ * @version 0.27.3
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -333,6 +333,7 @@ class EdurepResults
 		"typicalagerange" => "",
 		"typicallearningtime" => -1,
 		"cost" => "",
+		"copyright" => "",
 		"rights" => "",
 		"competency" => array(),
 		"discipline" => array(),
@@ -799,8 +800,8 @@ class EdurepResults
 	 * @return array $record Partial record array.
 	 */
 	private function normalizeRights( $record ) {
-		if ( !empty( $record["copyright"] ) && $record["copyright"][0] != "yes" && $record["copyright"][0] != "no" ) {
-			$record["rights"] = $record["copyright"][0];
+		if ( !empty( $record["copyright"] ) && $record["copyright"] != "yes" && $record["copyright"] != "no" ) {
+			$record["rights"] = $record["copyright"];
 		}
 		unset( $record["copyright"] );
 		return $record;
