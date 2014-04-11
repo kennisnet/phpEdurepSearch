@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.27
+ * @version 0.27.1
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -467,10 +467,6 @@ class EdurepResults
 	private function loadObject( $array ) {
 		if ( array_key_exists( "diagnostics", $array ) ) {
 			$this->getDiagnostics( $array["diagnostics"][0]["diagnostic"][0]["details"][0][0] );
-		}
-		# also checking raw details due to bug in Edurep
-		if ( array_key_exists( "details", $array ) ) {
-			$this->getDiagnostics( $array["details"][0][0] );
 		}
 
 		$this->recordcount = (int) $array["numberOfRecords"][0][0];
