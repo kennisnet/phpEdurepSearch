@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.27.1
+ * @version 0.27.2
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -475,25 +475,20 @@ class EdurepResults
 		$this->nextrecord = ( array_key_exists( "nextRecordPosition", $array ) ? (int) $array["nextRecordPosition"][0][0] : 0 );
 		$this->recordSchema = $array["echoedSearchRetrieveRequest"][0]["recordSchema"][0][0];
 
-		if ( $this->recordcount > 0 && $this->pagesize > 0 )
-		{
+		if ( $this->recordcount > 0 && $this->pagesize > 0 ) {
 			$this->setNavigation();
 
 			# get optional x-recordSchemas
-			if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) )
-			{
-				foreach( $array["echoedSearchRetrieveRequest"][0]["x-recordSchema"] as $xrecordschema )
-				{
+			if ( array_key_exists( "x-recordSchema", $array["echoedSearchRetrieveRequest"][0] ) ) {
+				foreach( $array["echoedSearchRetrieveRequest"][0]["x-recordSchema"] as $xrecordschema ) {
 					$this->xrecordSchemas[] = $xrecordschema[0];
 				}
 			}
-	
+
 			# get records
-			foreach ( $array["records"][0]["record"] as $record_array )
-			{
+			foreach ( $array["records"][0]["record"] as $record_array ) {
 				# create basic recorddata, either lom, dc or smo
-				switch ( $this->recordSchema )
-				{
+				switch ( $this->recordSchema ) {
 					case "lom":
 					$record = $this->lom_template;
 					$id_separator = ":";
@@ -505,17 +500,17 @@ class EdurepResults
 					$id_separator = ":";
 					$record = array_merge( $record, $this->getDcRecord( $record_array["recordData"][0]["dc"][0] ) );
 					break;
-					
+
 					case "smo":
 					$record = $this->smo_template;
 					$id_separator = ".";
 					$record = array_merge( $record, $this->getSmoRecord( $record_array["recordData"][0]["smo"][0] ) );
 					break;
 				}
-				
+
 				# srw identifier info
 				$record["recordidentifier"] = $record_array["recordIdentifier"][0][0];
-				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], $id_separator ) );			
+				$record["repository"] = substr( $record["recordidentifier"], 0, strpos( $record["recordidentifier"], $id_separator ) );
 
 				# merge duration fields
 				# execute before extra merge so technical duration won't overwrite typicallearningtime
@@ -531,25 +526,21 @@ class EdurepResults
 				}
 
 				# merge optional extra data
-				if ( in_array( "extra", $this->xrecordSchemas ) ) 
-				{
+				if ( in_array( "extra", $this->xrecordSchemas ) )  {
 					$pos = array_search( "extra", $this->xrecordSchemas );
 					$record = array_merge( $record, $this->getExtraData( $record_array["extraRecordData"][0]["recordData"][$pos]["extra"][0] ) );
 				}
-	
+
 				# merge optional smbAggregatedData
-				if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) )
-				{
+				if ( in_array( "smbAggregatedData", $this->xrecordSchemas ) ) {
 					$pos = array_search( "smbAggregatedData", $this->xrecordSchemas );
 					$record = array_merge( $record, $this->getSmbAggregatedData( $record_array["extraRecordData"][0]["recordData"][$pos]["smbAggregatedData"][0] ) );
 				}
-				
+
 				# merge optional smo's
-				if ( in_array( "smo", $this->xrecordSchemas ) )
-				{
+				if ( in_array( "smo", $this->xrecordSchemas ) ) {
 					$pos = array_search( "smo", $this->xrecordSchemas );
-					if ( array_key_exists( "smo", $record_array["extraRecordData"][0]["recordData"][$pos] ) )
-					{
+					if ( array_key_exists( "smo", $record_array["extraRecordData"][0]["recordData"][$pos] ) ) {
 						$record = array_merge( $record, $this->getSmos( $record_array["extraRecordData"][0]["recordData"][$pos] ) );
 					}
 				}
@@ -559,14 +550,10 @@ class EdurepResults
 		}
 
 		# get optional drilldowns
-		if ( array_key_exists( "extraResponseData", $array ) && array_key_exists( "drilldown", $array["extraResponseData"][0] ) )
-		{
-			foreach ( $array["extraResponseData"][0]["drilldown"][0]["term-drilldown"][0]["navigator"] as $navigator )
-			{
-				if ( array_key_exists( "item", $navigator ) )
-				{
-					foreach ( $navigator["item"] as $item )
-					{
+		if ( array_key_exists( "extraResponseData", $array ) && array_key_exists( "drilldown", $array["extraResponseData"][0] ) ) {
+			foreach ( $array["extraResponseData"][0]["drilldown"][0]["term-drilldown"][0]["navigator"] as $navigator ) {
+				if ( array_key_exists( "item", $navigator ) ) {
+					foreach ( $navigator["item"] as $item ) {
 						$counts[$item[0]] = (int) $item["@attributes"]["count"];
 					}
 					$this->drilldowns[$navigator["@attributes"]["name"]] = $counts;
