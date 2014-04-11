@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.26.3
+ * @version 0.27
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -344,7 +344,8 @@ class EdurepResults
 		"thumbnail" => "",
 		"icon" => "",
 		"previewimage" => "",
-		"landingpage" => "");
+		"landingpage" => "",
+		"hasformat" => array());
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -665,6 +666,7 @@ class EdurepResults
 		}
 
 		# include video embed, icon, landingpage and image thumbnail links
+		# put different formats in hasformat array
 		# merge icon and thumbnail into generic preview-image
 		if ( array_key_exists( "relation", $record_array ) ) {
 			$valid_types = array( "embed", "icon", "thumbnail", "landingpage" );
@@ -675,6 +677,13 @@ class EdurepResults
 				
 				if ( in_array( $type, $valid_types ) && !empty( $value ) ) {
 					$record[$type] = $value;
+				}
+				
+				if ( $type == "hasformat" && !empty( $value ) && array_key_exists( "description", $relation["resource"][0] ) ) {
+					$format = $relation["resource"][0]["description"][0]["langstring"][0][0];
+					if ( !empty( $format ) ) {
+						$record["hasformat"][$format] = $value;
+					}
 				}
 			}
 			# merge
