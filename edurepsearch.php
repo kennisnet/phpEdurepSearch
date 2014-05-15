@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.27.3
+ * @version 0.28
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -793,17 +793,18 @@ class EdurepResults
 
 	/**
 	 * Normalizes values from copyrightandotherrestrictions and
-	 * rights description fields. This, specific in the case of
-	 * Creative Commons values which do not occur in the descriptions.
+	 * rights description fields.
 	 *
 	 * @param array $record Partial record array.
 	 * @return array $record Partial record array.
 	 */
 	private function normalizeRights( $record ) {
-		if ( !empty( $record["copyright"] ) && $record["copyright"] != "yes" && $record["copyright"] != "no" ) {
+		if ( empty( $record["rights"] ) && $record["copyright"] != "yes" && $record["copyright"] != "no" ) {
 			$record["rights"] = $record["copyright"];
 		}
-		unset( $record["copyright"] );
+		if ( empty( $record["copyright"] ) && !empty( $record["rights"] ) ) {
+            $record["copyright"] = "yes";
+		}
 		return $record;
 	}
 
