@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.28
+ * @version 0.29
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -443,8 +443,12 @@ class EdurepResults
 	 *   
 	 * @param string $xmlstring XML string.
 	 */
-	public function __construct( $xmlstring )
-	{
+	public function __construct( $xmlstring ) {
+		# When available, include static include.
+		if ( file_exists( dirname(__FILE__)."/edurepsearch.inc.php" ) ) {
+			require_once( dirname(__FILE__)."/edurepsearch.inc.php" );
+		}
+
 		# set custom namespace in namespace-less element
 		$xmlstring = str_replace( "<recordData ", "<recordData xmlns=\"local:recorddata\" ", $xmlstring );
 
@@ -586,6 +590,9 @@ class EdurepResults
 		throw new UnexpectedValueException( "Error in Edurep query: ".$details, 24 );
 	}
 
+	/**
+	 * Get entire LOM record.
+	 */
 	private function getLomRecord( $record_array )
 	{
 		$record = array();
@@ -799,11 +806,19 @@ class EdurepResults
 	 * @return array $record Partial record array.
 	 */
 	private function normalizeRights( $record ) {
-		if ( empty( $record["rights"] ) && $record["copyright"] != "yes" && $record["copyright"] != "no" ) {
-			$record["rights"] = $record["copyright"];
+		# If copyright is a non-standard value, always overwrite rights when available in static include
+		if ( !empty( $record["copyright"] ) && $record["copyright"] != "yes" && $record["copyright"] != "no" ) {
+			if ( array_key_exists("voc_rights", $GLOBALS ) && array_key_exists( $record["copyright"], $GLOBALS["voc_rights"] ) ) {
+				$record["rights"] = $GLOBALS["voc_rights"][$record["copyright"]];
+			}
+			else {
+				$record["rights"] = $record["copyright"];
+			}
 		}
+
+		# for DC output there is no copyright
 		if ( empty( $record["copyright"] ) && !empty( $record["rights"] ) ) {
-            $record["copyright"] = "yes";
+			$record["copyright"] = "yes";
 		}
 		return $record;
 	}
