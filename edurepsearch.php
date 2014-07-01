@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.30
+ * @version 0.31
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -325,7 +325,7 @@ class EdurepResults
 		"publisher" => array(),
 		"author" => array(),
 		"location" => "",
-		"format" => array(),
+		"format" => "",
 		"duration" => -1,
 		"learningresourcetype" => array(),
 		"intendedenduserrole" => array(),
