@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.29
+ * @version 0.30
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -340,7 +340,6 @@ class EdurepResults
 		"educationallevel" => array(),
 		"educationalobjective" => array(),
 		"time" => -1,
-		"doctype" => "unknown",
 		"embed" => "",
 		"thumbnail" => "",
 		"icon" => "",
@@ -411,28 +410,6 @@ class EdurepResults
 		"currentpage" => "-",
 		"nextpage" => ">",
 		"lastpage" => ">>" );
-
-	# controls aggregated doctypes
-	private $doctypes = array(
-		"text/" => "text",
-		"video/" => "video",
-		"audio/" => "audio",
-		"image/" => "image",
-		"non-digital" => "non-digital",
-		"application/pdf" => "pdf",
-		"application/vnd.ms-powerpoint" => "presentation",
-		"application/vnd.openxmlformats-officedocument.presentationml.presentation" => "presentation",
-		"application/vnd.openxmlformats-officedocument.presentationml.slideshow" => "presentation",
-		"application/vnd.ms-excel" => "spreadsheet",
-		"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => "spreadsheet",
-		"application/msword" => "text",
-		"application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "text",
-		"application/zip" => "archive",
-		"application/x-ACTIVprimary3" => "digiboard",
-		"application/x-AS3PE" => "digiboard",
-		"application/x-Inspire" => "digiboard",
-		"application/x-smarttech-notebook" => "digiboard",
-		"application/x-zip-compressed" => "digiboard" );
 
 
 	/**
@@ -523,12 +500,6 @@ class EdurepResults
 
 				# merge copyrightandotherrestrictions and rights description
 				$record = $this->normalizeRights( $record );
-
-				# merge aggregate format to doctype
-				if ( !empty( $record["format"] ) ) {
-					$record["format"] = array_unique( $record["format"] );
-					$record = array_merge( $record, $this->aggregateFormat( $record["format"] ) );
-				}
 
 				# merge optional extra data
 				if ( in_array( "extra", $this->xrecordSchemas ) )  {
@@ -860,29 +831,6 @@ class EdurepResults
 			($interval->h * 60 * 60) +
 			($interval->i * 60) +
 			$interval->s;
-	}
-
-	/**
-	 * Uses the value for formats of a record to aggregate
-	 * to a value for doctype. Possible doctypes are defined
-	 * in $doctypes.
-	 * 
-	 * @param string $formats Non-empty format from record.
-	 * @return array $record Partial record array.
-	 */
-	private function aggregateFormat( $formats )
-	{
-		$record = array();
-		
-		foreach( $formats as $format ) {
-			foreach ( $this->doctypes as $mask => $guess_doctype ) {
-				if ( substr( $format, 0, strlen( $mask ) ) == $mask ) {
-					$record["doctype"][] = $guess_doctype;
-					break;
-				}
-			}
-		}
-		return $record;
 	}
 
 	/**
