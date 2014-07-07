@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31
+ * @version 0.31.1
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -931,7 +931,7 @@ class EdurepResults
 			}
 			else {
 				# change working array into default empty string
-				$extra[$role]["timestamp"] = "";
+				$extra[$role]["timestamp"] = -1;
 				$extra[$role]["datetime"] = "";
 			}  
 		}
