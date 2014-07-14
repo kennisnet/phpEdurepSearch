@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31.1
+ * @version 0.31.2
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -55,10 +55,10 @@ class EdurepSearch
 	private $recordschemas = array();
 
 	# maximum startRecord allowed by Edurep
-	private $maxstartrecord = 4000;
+	public $maxstartrecord = 1000;
 	
 	# internal counter for available startrecords
-	private $availablestartrecords = 4000;
+	private $availablestartrecords = 1000;
 
 	# internal counter for curl retries
 	private $curlretries = 0;
@@ -139,7 +139,7 @@ class EdurepSearch
 				$this->availablestartrecords = $this->maxstartrecord - $value;
 			}
 			else {
-				throw new UnexpectedValueException( "The value for startRecords should be between 1 and 4000.", 23 );
+				throw new UnexpectedValueException( "The value for startRecords should be between 1 and ".$this->maxstartrecord.".", 23 );
 			}
 			break;
 
