@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31.2
+ * @version 0.31.3
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -805,14 +805,17 @@ class EdurepResults
 	private function normalizeDuration( $record, $field ) {
 		if ( array_key_exists( $field, $record ) && substr( $record[$field], 0, 2 ) == "PT" ) {
 			$time = $this->durationToSeconds( $record[$field] );
-			
+
 			if ( !empty( $time ) ) {
 				$record[$field] = $time;
 				$record["time"] = $time;
 			}
 			else {
-				unset( $record[$field] );
+				$record[$field] = -1;
 			}
+		}
+		else {
+			$record[$field] = -1;
 		}
 		return $record;
 	}
