@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31.3
+ * @version 0.31.4
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -713,20 +713,19 @@ class EdurepResults
 		return $record;
 	}
 
-	private function getExtraData( $array )
-	{
+	private function getExtraData( $array ) {
 		$extra = array();
 		
-		foreach( $array as $category => $field )
-		{
-			switch( $category )
-			{
+		foreach( $array as $category => $field ) {
+			switch( $category ) {
 				case "lifeCycle":
 				$extra = array_merge( $extra, $this->getExtraContributes( $field[0]["contribute"] ) );
 				break;
 				
 				case "educational":
-				$extra = array_merge( $extra, $this->getExtraEducationals( $field ) );
+				if ( $this->recordSchema == "oai_dc" ) {
+					$extra = array_merge( $extra, $this->getExtraEducationals( $field ) );
+				}
 				break;
 				
 				case "classification":
@@ -817,6 +816,7 @@ class EdurepResults
 		else {
 			$record[$field] = -1;
 		}
+
 		return $record;
 	}
 
@@ -827,13 +827,18 @@ class EdurepResults
 	 * @return integer $seconds PT duration format converted to seconds.
 	 */
 	private function durationToSeconds( $pt_time ) {
-		$interval = new DateInterval( $pt_time );
-		return ($interval->y * 365 * 24 * 60 * 60) +
-			($interval->m * 30 * 24 * 60 * 60) +
-			($interval->d * 24 * 60 * 60) +
-			($interval->h * 60 * 60) +
-			($interval->i * 60) +
-			$interval->s;
+		try {
+			$interval = new DateInterval( $pt_time );
+			return ($interval->y * 365 * 24 * 60 * 60) +
+				($interval->m * 30 * 24 * 60 * 60) +
+				($interval->d * 24 * 60 * 60) +
+				($interval->h * 60 * 60) +
+				($interval->i * 60) +
+				$interval->s;
+		}
+		catch (Exception $e) {
+			return "";
+		}
 	}
 
 	/**
@@ -950,16 +955,15 @@ class EdurepResults
 	 * @param array $educational An xml array of the educationals.
 	 * @return array $extra Result array part to be merged.
 	 */
-	private function getExtraEducationals( $educationals )
-	{
+	private function getExtraEducationals( $educationals ) {
 		$extra = array();
 		
-		foreach( $educationals as $educational )
-		{
-			if ( array_key_exists( "typicalLearningTime", $educational ) )
-			{
-				$extra["typicallearningtime"] = (int) $educational["typicalLearningTime"][0]["duration"][0][0];
-				$extra["time"] = (int) $extra["typicallearningtime"];
+		foreach( $educationals as $educational ) {
+			if ( array_key_exists( "typicalLearningTime", $educational ) ) {
+				$time = (int) $educational["typicalLearningTime"][0]["duration"][0][0];
+				$time = ( empty( $time ) ? -1 : $time );
+				$extra["typicallearningtime"] = $time;
+				$extra["time"] = $time;
 			}
 		}
 		return $extra;
