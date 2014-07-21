@@ -134,7 +134,7 @@ class EdurepSearch
 			break;
 
 			case "startRecord":
-			if ( $value >= 1 && $value <= 4000 ) {
+			if ( $value >= 1 && $value <= $this->maxstartrecord ) {
 				$this->parameters[$key] = $value;
 				$this->availablestartrecords = $this->maxstartrecord - $value;
 			}
@@ -298,7 +298,7 @@ class EdurepResults
 	private $xrecordSchemas = array();
 
 	# maximum startRecord allowed by Edurep
-	private $maxstartrecord = 4000;
+	private $maxstartrecord = 1000;
 
 	# namespaces used in edurep results
 	private $namespaces = array(
