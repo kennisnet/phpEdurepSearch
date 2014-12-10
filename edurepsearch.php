@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31.4
+ * @version 0.31.5
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -910,7 +910,10 @@ class EdurepResults
 				if ( array_key_exists( $role, $contribute ) ) {
 					foreach ( $contribute[$role] as $entity ) {
 						if ( array_key_exists( "name", $entity ) ) {
-							$extra[$role]["name"][] = $entity["name"][0][0];
+							# ghetto check for wrongly formatted vcard
+							if ( substr( $entity["name"][0][0], 0, 11 ) != "BEGIN:VCARD" ) {
+								$extra[$role]["name"][] = $entity["name"][0][0];
+							}
 						}
 						if ( array_key_exists( "dateTime", $entity ) ) {
 							# save timestamp for easy sorting
