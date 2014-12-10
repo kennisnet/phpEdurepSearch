@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.31.5
+ * @version 0.32
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -345,7 +345,8 @@ class EdurepResults
 		"icon" => "",
 		"previewimage" => "",
 		"landingpage" => "",
-		"hasformat" => array());
+		"hasformat" => array(),
+		"objectidentifier" => array() );
 
 	# type definition for each smo field
 	private $smo_template = array(
@@ -623,6 +624,20 @@ class EdurepResults
 							}
 						break;
 					}
+				}
+			}
+		}
+		
+		// only put urns and urls in objectidentifiers
+		if ( array_key_exists( "catalogentry", $record_array["general"][0] ) ) {
+			foreach( $record_array["general"][0]["catalogentry"] as $catalogentry ) {
+				$catalog = strtolower($catalogentry["catalog"][0][0]);
+				if ( $catalog == "uri" || $catalog == "url" ) {
+					$record["objectidentifier"][] = $catalogentry["entry"][0]["langstring"][0][0];
+				}
+				// fallback for those repositories, that did not convert it to urn themselves
+				elseif ( $catalog == "isbn" ) {
+					$record["objectidentifier"][] = "urn:isbn:".$catalogentry["entry"][0]["langstring"][0][0];
 				}
 			}
 		}

@@ -17,6 +17,7 @@ The following table shows the currently supported LOM response fields; if the fi
                                         #       lom     oai_dc  extra
 ---------------------------------------------------------------------
 general.title                           S       x       x
+general.catalogentry                    M       x
 general.language                        M       x       x
 general.description                     S       x       x
 general.keyword                         M       x       x
