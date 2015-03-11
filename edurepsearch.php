@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.32
+ * @version 0.33
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -12,7 +12,7 @@
  * @todo full result support for smo
  * @todo select language attribute to return
  * 
- * Copyright 2012-2014 Wim Muskee <wimmuskee@gmail.com>
+ * Copyright 2012-2015 Wim Muskee <wimmuskee@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -636,8 +636,8 @@ class EdurepResults
 					$record["objectidentifier"][] = $catalogentry["entry"][0]["langstring"][0][0];
 				}
 				// fallback for those repositories, that did not convert it to urn themselves
-				elseif ( $catalog == "isbn" ) {
-					$record["objectidentifier"][] = "urn:isbn:".$catalogentry["entry"][0]["langstring"][0][0];
+				else {
+					$record["objectidentifier"][] = "urn:".$catalog.":".$catalogentry["entry"][0]["langstring"][0][0];
 				}
 			}
 		}
