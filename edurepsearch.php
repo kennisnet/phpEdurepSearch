@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.33
+ * @version 0.40
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -356,10 +356,16 @@ class EdurepResults
 		"identifier" => "",
 		"summary" => "",
 		"dtreviewed" => "",
+		"reviewer" => "",
 		"rating" => -1,
 		"worst" => -1,
 		"best" => -1,
-		"description" => -1 );
+		"description" => "",
+		"tags" => array(),
+		"type" => "",
+		"version" => "",
+		"permalink" => "",
+		"license" => array("description" => "", "ref" => "") );
 
 	# valid lom contribute roles to check in extra record
 	private $contribute_roles = array(
@@ -703,8 +709,7 @@ class EdurepResults
 
 	// walk across record_array and fill record 
 	// also used by getSmos
-	private function getSmoRecord( $record_array )
-	{
+	private function getSmoRecord( $record_array ) {
 		$record = array();
 		
 		$record["smoid"] = $record_array["smoId"][0][0];
@@ -712,19 +717,45 @@ class EdurepResults
 		$record["identifier"] = $record_array["hReview"][0]["info"][0][0];
 		
 		# optional fields
-		if ( array_key_exists( "userId", $record_array ) )
-		{
+		if ( array_key_exists( "userId", $record_array ) ) {
 			$record["userid"] =  $record_array["userId"][0][0];
 		}
 		
-		$hreviewfields = array( "summary", "dtreviewed", "rating", "worst", "best", "description" );
-		foreach ( $hreviewfields as $field )
-		{
-			if ( array_key_exists( $field, $record_array["hReview"][0] ) )
-			{
+		$hreviewfields = array( "summary", "dtreviewed", "rating", "worst", "best", "description", "reviewer", "type", "version", "permalink" );
+		foreach ( $hreviewfields as $field ) {
+			if ( array_key_exists( $field, $record_array["hReview"][0] ) ) {
 				$record[$field] = $record_array["hReview"][0][$field][0][0];
 			}
 		}
+		
+		if ( array_key_exists( "tags", $record_array["hReview"][0] ) ) {
+			$record["tags"] = array();
+			foreach( $record_array["hReview"][0]["tags"][0]["tag"] as $tag ) {
+				$formatted_tag = array( "ref" => "", "name" => "", "rating" => NULL );
+
+				if ( array_key_exists( "ref", $tag ) ) {
+					$formatted_tag["ref"] = $tag["ref"][0][0];
+				}
+				if ( array_key_exists( "name", $tag ) ) {
+					$formatted_tag["name"] = $tag["name"][0][0];
+				}
+				if ( array_key_exists( "rating", $tag ) ) {
+					$formatted_tag["rating"] = (float) $tag["rating"][0][0];
+				}
+				$record["tags"][] = $formatted_tag;
+			}
+		}
+		
+		if ( array_key_exists( "license", $record_array["hReview"][0] ) ) {
+			$record["license"] = array("description" => "", "ref" => "");
+			if ( array_key_exists( "description", $record_array["hReview"][0]["license"][0] ) ) {
+				$record["license"]["description"] = $record_array["hReview"][0]["license"][0]["description"][0][0];
+			}
+			if ( array_key_exists( "ref", $record_array["hReview"][0]["license"][0] ) ) {
+				$record["license"]["ref"] = $record_array["hReview"][0]["license"][0]["ref"][0][0];
+			}
+		}
+		
 		return $record;
 	}
 
@@ -759,12 +790,10 @@ class EdurepResults
 		return $sad;
 	}
 
-	private function getSmos( $array )
-	{
+	private function getSmos( $array ) {
 		$record["smo"] = array();
 		
-		foreach( $array["smo"] as $smo )
-		{
+		foreach( $array["smo"] as $smo ) {
 			$record["smo"][] = array_merge( $this->smo_template, $this->getSmoRecord( $smo ) );
 		}
 		return $record;
