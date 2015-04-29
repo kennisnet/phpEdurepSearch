@@ -2,7 +2,7 @@
 /**
  * PHP package for interfacing with the Edurep search engine.
  *
- * @version 0.40
+ * @version 0.41
  * @link http://developers.wiki.kennisnet.nl/index.php/Edurep:Hoofdpagina
  * @example phpEdurepSearch/example.php
  *
@@ -188,6 +188,7 @@ class EdurepSearch
 		switch ( $type ) {
 			case "lom": $this->path = "edurep/sruns"; break;
 			case "smo": $this->path = "smo/sruns"; break;
+			case "plus": $this->path = "edurep/sruns/plus"; break;
 			default: $this->path = "edurep/sruns";
 		}
 	}
