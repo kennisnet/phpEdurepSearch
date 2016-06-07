@@ -275,7 +275,7 @@ class EdurepSearch
 				{
 					sleep( 1 );
 					$this->curlretries++;
-					$this->executeQuery( $query );
+					$this->executeQuery( $this->query );
 				}
 				else {
 					throw new NetworkException( curl_error( $curl ) );
