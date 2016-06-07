@@ -206,6 +206,21 @@ class EdurepSearch
 	}
 
 	/**
+	 * Delete existing query. After deleting the query a new
+	 * one can be build.
+	 *
+	 * @return bool
+	 */
+	public function deleteQuery() {
+		if ( empty( $this->query ) ) {
+			return false;
+		}
+		$this->query = "";
+
+		return true;
+	}
+
+	/**
 	 * Returns the Edurep query url. If the query
 	 * is not generated, it will be.
 	 *
