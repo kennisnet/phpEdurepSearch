@@ -4,24 +4,17 @@ require_once('vendor/autoload.php');
 /**
  * Example use of Edurep search and results.
  */
-require_once("edurepsearchOLD.php");
 date_default_timezone_set('Europe/Amsterdam');
 
-# create with a valid api key
-$edurep = new \Kennisnet\Edurep\EdurepSearch("12345");
 
-# optionally, set a different baseurl
-# the default baseurl points to production
-# $edurep->setBaseurl( "http://anotheredurepurl.nl" );
+//Create a Edurep Search strategy and config
+$strategy = new \Kennisnet\Edurep\EdurepStrategyType();
+$config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+$edurep = new \Kennisnet\Edurep\EdurepSearch($config);
 
-# perform a search for smo records
-# mind that the smo search does not support all parameters
-# and has different drilldown values 
-# $edurep->setSearchType("smo");
-
-# set search terms, default edurep
-# should be provided urldecoded, the class will encode it
 $edurep
+    # set search terms
+    # should be provided urldecoded, the class will encode it
     ->setQuery("math")
 
     # set another default record schema
@@ -52,6 +45,8 @@ $edurep
 # for caching purposes
 
 # perform a search for lom records
-$response = $edurep->search();
+$response = $edurep->search('lom');
+
+print $edurep->getRequestUrl();
 
 print $response;
