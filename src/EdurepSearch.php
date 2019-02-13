@@ -228,4 +228,61 @@ class EdurepSearch
 
         return $this->response;
     }
+
+    /**
+     * TODO Handle multiple formats, drilldowns, x-recordSchema etc?
+     * Split results
+     * @param string $response
+     * @return \StdClass
+     */
+    public static function splitResponse(string $response)
+    {
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->loadXML($response, LIBXML_NOENT|LIBXML_NSCLEAN);
+
+        $xpath = self::createXPath($dom);
+
+        $obj = new \StdClass;
+
+        $obj->version = (string) $xpath->query('//srw:version')[0]->nodeValue;
+        $obj->numberOfRecords = (int) $xpath->query('//srw:numberOfRecords')[0]->nodeValue;
+        $obj->nextRecordPosition = (int) $xpath->query('//srw:nextRecordPosition')[0]->nodeValue;
+        $obj->records = [];
+
+        $records = $xpath->query('//srw:records/srw:record');
+
+        foreach ($records as $r) {
+
+            $record = new \StdClass();
+
+            //TODO code from wikiwijs zoeken, cleanup or optimize?
+            $record->lomrecordId     = $xpath->evaluate("string(./srw:recordIdentifier/text()[1])", $r);
+            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])", $r);
+            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])", $r);
+            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo", $r);
+            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag", $r);
+
+            //Fetch Lom record
+            $record->lom = $xpath->query('./srw:recordData/czp:lom', $r)->item(0);
+
+            $obj->records[] = $record;
+        }
+
+        return $obj;
+    }
+
+    private static function createXPath (\DOMDocument $doc)
+    {
+        $xpath = new \DOMXPath($doc);
+        $xpath->registerNamespace('srw', 'http://www.loc.gov/zing/srw/');
+        $xpath->registerNamespace('czp', 'http://www.imsglobal.org/xsd/imsmd_v1p2');
+        $xpath->registerNamespace('sad', 'http://xsd.kennisnet.nl/smd/sad');
+        $xpath->registerNamespace('smo', 'http://xsd.kennisnet.nl/smd/1.0/');
+        $xpath->registerNamespace('edurep', 'http://meresco.org/namespace/users/kennisnet/edurep');
+        $xpath->registerNamespace('dd', 'http://meresco.org/namespace/drilldown');
+        $xpath->registerNamespace('hr', 'http://xsd.kennisnet.nl/smd/hreview/1.0/');
+        $xpath->registerNamespace('hr2', 'http://xsd.kennisnet.nl/smd/1.0/');
+
+        return $xpath;
+    }
 }

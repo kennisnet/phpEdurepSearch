@@ -31,10 +31,8 @@ class EdurepSearchTest extends TestCase
 
     public function testEdurepQuery()
     {
-        $this->expectExceptionMessage('Could not resolve host: dummy');
-
         $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "dummy/");
+        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
         $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
         $edurep
             ->setQuery("math")
@@ -59,7 +57,7 @@ class EdurepSearchTest extends TestCase
             'x-term-drilldown' => 'lom.technical.format:5,lom.rights.cost:2'
         ], $edurep->getParameters());
 
-        $this->assertEquals('dummy/edurep/sruns?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=7&recordSchema=oai_dc&startRecord=3&x-term-drilldown=lom.technical.format:5,lom.rights.cost:2&sortKeys=test&x-recordSchema=smbAggregatedData&x-recordSchema=extra',
+        $this->assertEquals('http://wszoeken.edurep.kennisnet.nl:8000/edurep/sruns?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=7&recordSchema=oai_dc&startRecord=3&x-term-drilldown=lom.technical.format:5,lom.rights.cost:2&sortKeys=test&x-recordSchema=smbAggregatedData&x-recordSchema=extra',
             $edurep->getRequestUrl()
         );
 
@@ -85,5 +83,14 @@ class EdurepSearchTest extends TestCase
         $this->assertEquals('https://staging.catalogusservice.edurep.nl/sru?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=100',
             $edurep->getRequestUrl()
         );
+    }
+
+    public function testSplitLOM()
+    {
+        $response = file_get_contents(__DIR__.'/lomResponse.xml');
+
+        $result = \Kennisnet\Edurep\EdurepSearch::splitResponse($response);
+
+        $this->assertCount(2, $result->records);
     }
 }

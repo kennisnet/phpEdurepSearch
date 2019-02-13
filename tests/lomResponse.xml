@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/"
+>
+    <srw:version>1.1</srw:version>
+    <srw:numberOfRecords>1803</srw:numberOfRecords>
+    <srw:records>
+        <srw:record>
+            <srw:recordSchema>lom</srw:recordSchema>
+            <srw:recordPacking>xml</srw:recordPacking>
+            <srw:recordData>
+                <czp:lom xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xmlns:czp="http://www.imsglobal.org/xsd/imsmd_v1p2"
+                         xsi:schemaLocation="http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd">
+                    <czp:general>
+                        <czp:title>
+                            <czp:langstring xml:lang="nl">Elektrische fiets</czp:langstring>
+                        </czp:title>
+                        <czp:catalogentry>
+                            <czp:catalog>URI</czp:catalog>
+                            <czp:entry>
+                                <czp:langstring xml:lang="x-none">http://nl.wikipedia.org/wiki/Elektrische_fiets
+                                </czp:langstring>
+                            </czp:entry>
+                        </czp:catalogentry>
+                        <czp:language>nl</czp:language>
+                        <czp:description>
+                            <czp:langstring xml:lang="nl">Een elektrische fiets is een fiets die door een elektromotor
+                                aangedreven wordt, al dan niet in combinatie met spierkracht. De elektrische fiets met
+                                zelfstandige aandrijving heet ook wel "E-bike" (Engels, spreek uit als: "ie-baaik") en
+                                komt van electric bike. De elektrische fiets die werkt in combinatie met spierkracht, en
+                                dus alleen ondersteuning geeft, heet officieel in Nederland fiets met trapondersteuning.
+                                Zo'n fiets wordt ook wel "pedelec" genoemd.(komt uit de samentrekking van de Engelse
+                                woorden pedal en electric).
+                            </czp:langstring>
+                        </czp:description>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">aantal</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">systeem</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">gebruik</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">ondersteuning</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">motor</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">fietsen</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">accu</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">elektrische</czp:langstring>
+                        </czp:keyword>
+                        <czp:keyword>
+                            <czp:langstring xml:lang="nl">fiets</czp:langstring>
+                        </czp:keyword>
+                        <czp:structure>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_structure_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">hierarchical</czp:langstring>
+                            </czp:value>
+                        </czp:structure>
+                        <czp:aggregationlevel>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_aggregationlevel_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">2</czp:langstring>
+                            </czp:value>
+                        </czp:aggregationlevel>
+                    </czp:general>
+                    <czp:lifecycle>
+                        <czp:version>
+                            <czp:langstring xml:lang="x-none">02122015</czp:langstring>
+                        </czp:version>
+                        <czp:contribute>
+                            <czp:role>
+                                <czp:source>
+                                    <czp:langstring xml:lang="x-none">
+                                        http://purl.edustandaard.nl/vdex_lifecycle_contribute_role_lomv1p0_20060628.xml
+                                    </czp:langstring>
+                                </czp:source>
+                                <czp:value>
+                                    <czp:langstring xml:lang="x-none">publisher</czp:langstring>
+                                </czp:value>
+                            </czp:role>
+                            <czp:centity>
+                                <czp:vcard>BEGIN:VCARD
+                                    VERSION:3.0
+                                    FN:Wikipedia
+                                    END:VCARD
+                                </czp:vcard>
+                            </czp:centity>
+                            <czp:date>
+                                <czp:datetime>2015-12-08T10:33:43Z</czp:datetime>
+                            </czp:date>
+                        </czp:contribute>
+                    </czp:lifecycle>
+                    <czp:metametadata>
+                        <czp:metadatascheme>LOMv1.0</czp:metadatascheme>
+                        <czp:metadatascheme>nl_lom_v1p0</czp:metadatascheme>
+                        <czp:language>nl</czp:language>
+                    </czp:metametadata>
+                    <czp:technical>
+                        <czp:format>text/html</czp:format>
+                        <czp:location>http://nl.wikipedia.org/wiki/Elektrische_fiets</czp:location>
+                    </czp:technical>
+                    <czp:educational>
+                        <czp:interactivitytype>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_interactiontype_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">expositive</czp:langstring>
+                            </czp:value>
+                        </czp:interactivitytype>
+                        <czp:learningresourcetype>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_learningresourcetype_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">informatiebron</czp:langstring>
+                            </czp:value>
+                        </czp:learningresourcetype>
+                        <czp:intendedenduserrole>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_intendedenduserrole_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">learner</czp:langstring>
+                            </czp:value>
+                        </czp:intendedenduserrole>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">HBO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">WO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">VO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:typicalagerange>
+                            <czp:langstring xml:lang="x-none">17+</czp:langstring>
+                        </czp:typicalagerange>
+                        <czp:typicallearningtime>
+                            <czp:datetime>PT20M0S</czp:datetime>
+                        </czp:typicallearningtime>
+                    </czp:educational>
+                    <czp:rights>
+                        <czp:cost>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_cost_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">no</czp:langstring>
+                            </czp:value>
+                        </czp:cost>
+                        <czp:copyrightandotherrestrictions>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">cc-by-sa-30</czp:langstring>
+                            </czp:value>
+                        </czp:copyrightandotherrestrictions>
+                    </czp:rights>
+                    <czp:relation>
+                        <czp:kind>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_relation_kind_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">isversionof</czp:langstring>
+                            </czp:value>
+                        </czp:kind>
+                        <czp:resource>
+                            <czp:description>
+                                <czp:langstring xml:lang="nl">De metadata is op deze revisie gebaseerd.</czp:langstring>
+                            </czp:description>
+                            <czp:catalogentry>
+                                <czp:catalog>URI</czp:catalog>
+                                <czp:entry>
+                                    <czp:langstring xml:lang="x-none">
+                                        http://nl.wikipedia.org/w/index.php?title=Elektrische_fiets&amp;oldid=45328106
+                                    </czp:langstring>
+                                </czp:entry>
+                            </czp:catalogentry>
+                        </czp:resource>
+                    </czp:relation>
+                </czp:lom>
+            </srw:recordData>
+        </srw:record>
+        <srw:record>
+            <srw:recordSchema>lom</srw:recordSchema>
+            <srw:recordPacking>xml</srw:recordPacking>
+            <srw:recordData>
+                <czp:lom xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                         xmlns:czp="http://www.imsglobal.org/xsd/imsmd_v1p2"
+                         xsi:schemaLocation="http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd">
+                    <czp:general>
+                        <czp:title>
+                            <czp:langstring xml:lang="nl">Verzet (fiets)</czp:langstring>
+                        </czp:title>
+                        <czp:catalogentry>
+                            <czp:catalog>URI</czp:catalog>
+                            <czp:entry>
+                                <czp:langstring xml:lang="x-none">http://nl.wikipedia.org/wiki/Verzet_(fiets)
+                                </czp:langstring>
+                            </czp:entry>
+                        </czp:catalogentry>
+                        <czp:language>nl</czp:language>
+                        <czp:description>
+                            <czp:langstring xml:lang="nl">Verzet is de afstand die een fiets aflegt als de pedalen een
+                                keer worden rondgedraaid.
+                            </czp:langstring>
+                        </czp:description>
+                        <czp:structure>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_structure_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">hierarchical</czp:langstring>
+                            </czp:value>
+                        </czp:structure>
+                        <czp:aggregationlevel>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_aggregationlevel_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">2</czp:langstring>
+                            </czp:value>
+                        </czp:aggregationlevel>
+                    </czp:general>
+                    <czp:lifecycle>
+                        <czp:version>
+                            <czp:langstring xml:lang="x-none">11112014</czp:langstring>
+                        </czp:version>
+                        <czp:contribute>
+                            <czp:role>
+                                <czp:source>
+                                    <czp:langstring xml:lang="x-none">
+                                        http://purl.edustandaard.nl/vdex_lifecycle_contribute_role_lomv1p0_20060628.xml
+                                    </czp:langstring>
+                                </czp:source>
+                                <czp:value>
+                                    <czp:langstring xml:lang="x-none">publisher</czp:langstring>
+                                </czp:value>
+                            </czp:role>
+                            <czp:centity>
+                                <czp:vcard>BEGIN:VCARD
+                                    VERSION:3.0
+                                    FN:Wikipedia
+                                    END:VCARD
+                                </czp:vcard>
+                            </czp:centity>
+                            <czp:date>
+                                <czp:datetime>2015-04-02T09:29:45Z</czp:datetime>
+                            </czp:date>
+                        </czp:contribute>
+                    </czp:lifecycle>
+                    <czp:metametadata>
+                        <czp:metadatascheme>LOMv1.0</czp:metadatascheme>
+                        <czp:metadatascheme>nl_lom_v1p0</czp:metadatascheme>
+                        <czp:language>nl</czp:language>
+                    </czp:metametadata>
+                    <czp:technical>
+                        <czp:format>text/html</czp:format>
+                        <czp:location>http://nl.wikipedia.org/wiki/Verzet_(fiets)</czp:location>
+                    </czp:technical>
+                    <czp:educational>
+                        <czp:interactivitytype>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_interactiontype_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">expositive</czp:langstring>
+                            </czp:value>
+                        </czp:interactivitytype>
+                        <czp:learningresourcetype>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_learningresourcetype_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">informatiebron</czp:langstring>
+                            </czp:value>
+                        </czp:learningresourcetype>
+                        <czp:intendedenduserrole>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_intendedenduserrole_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">learner</czp:langstring>
+                            </czp:value>
+                        </czp:intendedenduserrole>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">HBO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">WO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:context>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_context_czp_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">VO</czp:langstring>
+                            </czp:value>
+                        </czp:context>
+                        <czp:typicalagerange>
+                            <czp:langstring xml:lang="x-none">16+</czp:langstring>
+                        </czp:typicalagerange>
+                        <czp:typicallearningtime>
+                            <czp:datetime>PT2M0S</czp:datetime>
+                        </czp:typicallearningtime>
+                    </czp:educational>
+                    <czp:rights>
+                        <czp:cost>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_cost_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">no</czp:langstring>
+                            </czp:value>
+                        </czp:cost>
+                        <czp:copyrightandotherrestrictions>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/copyrightsandotherrestrictions_nllom_20131202
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">cc-by-sa-30</czp:langstring>
+                            </czp:value>
+                        </czp:copyrightandotherrestrictions>
+                    </czp:rights>
+                    <czp:relation>
+                        <czp:kind>
+                            <czp:source>
+                                <czp:langstring xml:lang="x-none">
+                                    http://purl.edustandaard.nl/vdex_relation_kind_lomv1p0_20060628.xml
+                                </czp:langstring>
+                            </czp:source>
+                            <czp:value>
+                                <czp:langstring xml:lang="x-none">isversionof</czp:langstring>
+                            </czp:value>
+                        </czp:kind>
+                        <czp:resource>
+                            <czp:description>
+                                <czp:langstring xml:lang="nl">De metadata is op deze revisie gebaseerd.</czp:langstring>
+                            </czp:description>
+                            <czp:catalogentry>
+                                <czp:catalog>URI</czp:catalog>
+                                <czp:entry>
+                                    <czp:langstring xml:lang="x-none">
+                                        http://nl.wikipedia.org/w/index.php?title=Verzet_(fiets)&amp;oldid=42402278
+                                    </czp:langstring>
+                                </czp:entry>
+                            </czp:catalogentry>
+                        </czp:resource>
+                    </czp:relation>
+                </czp:lom>
+            </srw:recordData>
+        </srw:record>
+    </srw:records>
+    <srw:nextRecordPosition>3</srw:nextRecordPosition>
+    <srw:echoedSearchRetrieveRequest>
+        <srw:version>1.1</srw:version>
+        <srw:query>fiets</srw:query>
+        <srw:startRecord>1</srw:startRecord>
+        <srw:maximumRecords>2</srw:maximumRecords>
+        <srw:recordPacking>xml</srw:recordPacking>
+        <srw:recordSchema>lom</srw:recordSchema>
+    </srw:echoedSearchRetrieveRequest>
+    <srw:extraResponseData>
+        <querytimes xmlns="http://meresco.org/namespace/timing">
+            <sruHandling>PT0.023S</sruHandling>
+            <sruQueryTime>PT0.016S</sruQueryTime>
+            <index>PT0.011S</index>
+        </querytimes>
+    </srw:extraResponseData>
+</srw:searchRetrieveResponse>
