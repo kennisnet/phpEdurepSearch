@@ -1,24 +1,3 @@
-#################
-## Eclipse
-#################
-
-*.pydevproject
-.project
-.metadata
-
-
-############
-## Windows
-############
-
-# Windows image file caches
-Thumbs.db
-
-# Folder config file
-Desktop.ini
-
-###########
-##NetBeans
-###########
-/nbproject/private/
-
+.idea
+vendor
+coverage_html

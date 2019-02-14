@@ -1,0 +1,18 @@
+{
+  "name": "kennisnet/edurepsearch",
+  "description": "Edurep and Catalogservice search tool",
+  "autoload": {
+    "psr-4": {
+      "Kennisnet\\Edurep\\": "src/",
+      "Tests\\Kennisnet\\Edurep\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7.0.8",
+    "ext-curl": "^7.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0",
+    "phpunit/php-code-coverage": "^5.0"
+  }
+}
