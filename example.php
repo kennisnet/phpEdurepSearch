@@ -41,9 +41,6 @@ $edurep
     ->addXRecordSchema("extra")
 ;
 
-# get the query (without host) before the search
-# for caching purposes
-
 # perform a search for lom records
 $response = $edurep->search('lom');
 

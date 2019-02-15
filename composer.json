@@ -1,6 +1,8 @@
 {
   "name": "kennisnet/edurepsearch",
   "description": "Edurep and Catalogservice search tool",
+  "homepage": "https://github.com/kennisnet/phpEdurepSearch",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Kennisnet\\Edurep\\": "src/",
