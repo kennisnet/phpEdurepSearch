@@ -9,7 +9,7 @@ date_default_timezone_set('Europe/Amsterdam');
 
 //Create a Edurep Search strategy and config
 $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-$config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+$config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "https://wszoeken.edurep.kennisnet.nl/");
 $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
 
 $edurep

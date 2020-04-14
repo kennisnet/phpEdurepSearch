@@ -12,7 +12,7 @@ class EdurepSearchTest extends TestCase
         $this->expectExceptionMessage('The value for maximumRecords should be between 0 and 100.');
 
         $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "https://wszoeken.edurep.kennisnet.nl/");
         $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
         $edurep->setMaximumRecords(-1);
         $edurep->getRequestUrl();
@@ -23,7 +23,7 @@ class EdurepSearchTest extends TestCase
         $this->expectExceptionMessage('Missing query');
 
         $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "https://wszoeken.edurep.kennisnet.nl/");
         $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
 
         $edurep->getRequestUrl();
@@ -32,7 +32,7 @@ class EdurepSearchTest extends TestCase
     public function testEdurepQuery()
     {
         $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+        $config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "https://wszoeken.edurep.kennisnet.nl/");
         $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
         $edurep
             ->setQuery("math")
@@ -57,7 +57,7 @@ class EdurepSearchTest extends TestCase
             'x-term-drilldown' => 'lom.technical.format:5,lom.rights.cost:2'
         ], $edurep->getParameters());
 
-        $this->assertEquals('http://wszoeken.edurep.kennisnet.nl:8000/edurep/sruns?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=7&recordSchema=oai_dc&startRecord=3&x-term-drilldown=lom.technical.format:5,lom.rights.cost:2&sortKeys=test&x-recordSchema=smbAggregatedData&x-recordSchema=extra',
+        $this->assertEquals('https://wszoeken.edurep.kennisnet.nl/edurep/sruns?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=7&recordSchema=oai_dc&startRecord=3&x-term-drilldown=lom.technical.format:5,lom.rights.cost:2&sortKeys=test&x-recordSchema=smbAggregatedData&x-recordSchema=extra',
             $edurep->getRequestUrl()
         );
 

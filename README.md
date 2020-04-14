@@ -10,14 +10,14 @@ To distinguish between the different endpoints, different *strategies* can be us
 * CatalogusStrategyType
 
 Each strategy is combined with the endpoint host to create the class configuration:
-* (edurep) http://wszoeken.edurep.kennisnet.nl:8000/
+* (edurep) https://wszoeken.edurep.kennisnet.nl/
 * (catalogservice) https://catalogusservice.edurep.nl/
 
 ## example
 While a full *example.php* file is available, a smaller example is shown here:
 ```php
 $strategy = new \Kennisnet\Edurep\EdurepStrategyType();
-$config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+$config = new \Kennisnet\Edurep\DefaultSearchConfig($strategy, "https://wszoeken.edurep.kennisnet.nl/");
 $edurep = new \Kennisnet\Edurep\EdurepSearch($config);
 
 $edurep
