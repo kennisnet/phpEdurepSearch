@@ -2,7 +2,7 @@
 
 namespace Kennisnet\Edurep\Transformer;
 
-use Kennisnet\ECK\EckRecord;
+use Kennisnet\Edurep\EckRecord;
 use Kennisnet\Edurep\Model\EdurepRecord;
 use Kennisnet\NLLOM\NLLOM;
 
@@ -10,6 +10,7 @@ class EdurepRecordTransformer
 {
     /**
      * @param array $records
+     *
      * @return EdurepRecord[]
      * @throws \Exception
      */
@@ -26,7 +27,7 @@ class EdurepRecordTransformer
                     $eduRecord = $this->fromEckRecord($record);
                     break;
                 case NLLOM::class:
-                    $eduRecord = $this->fromEckRecord($record);
+                    $eduRecord = $this->fromNLLOMRecord($record);
                     break;
                 default:
                     throw new \Exception('Trying to transform from unknown class');

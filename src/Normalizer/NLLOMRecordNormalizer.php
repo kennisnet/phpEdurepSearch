@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 19-2-19
- * Time: 11:49
- */
 declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Normalizer;
@@ -18,10 +12,9 @@ class NLLOMRecordNormalizer implements RecordNormalizer
 {
     /**
      * @param $records NLLOM[]
-     * @param $schema
-     * @return array
+     * @return array<string,EdurepRecord>|array
      */
-    public function normalize(array $records, string $schema)
+    public function normalize(array $records, string $schema): array
     {
         $data = [];
         foreach ($records as $recordId => $record) {
@@ -32,6 +25,7 @@ class NLLOMRecordNormalizer implements RecordNormalizer
             $edurepRecord->setLocation($record->getTechnicalLocation() ?? '');
             $data[$recordId] = $edurepRecord;
         }
+
         return $data;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Kennisnet\Edurep;
 
 class EdurepStrategyType implements StrategyType

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Model;
 
+use DateTime;
 use Kennisnet\Edurep\Record;
 use Kennisnet\Edurep\Value\Duration;
 use Kennisnet\Edurep\Value\PublishDate;
@@ -55,7 +56,7 @@ class EdurepRecord implements Record
     private $authors = [];
 
     /**
-     * @var \DateTime
+     * @var DateTime
      */
     private $publishDate;
 
@@ -70,68 +71,42 @@ class EdurepRecord implements Record
         $this->recordId = $recordId;
     }
 
-    /**
-     * @return string
-     */
     public function getRecordId(): string
     {
         return $this->recordId;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @param string $title
-     */
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * @return string
-     */
     public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @return string
-     */
+    public function setDescription(string $description)
+    {
+        $this->description = $description;
+    }
+
     public function getLocation(): string
     {
         return $this->location;
     }
 
-    /**
-     * @param string $location
-     */
     public function setLocation(string $location)
     {
         $this->location = $location;
     }
 
-
-
-    /**
-     * @param string $description
-     */
-    public function setDescription($description)
-    {
-        $this->description = $description;
-    }
-
-    /**
-     * @return \string[]
-     */
-    public function getResourceTypes()
+    public function getResourceTypes(): array
     {
         return $this->resourceTypes;
     }
@@ -218,7 +193,7 @@ class EdurepRecord implements Record
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function getPublishDate()
     {
@@ -226,7 +201,7 @@ class EdurepRecord implements Record
     }
 
     /**
-     * @param \DateTime $publishDate
+     * @param DateTime $publishDate
      */
     public function setPublishDate($publishDate)
     {
@@ -242,6 +217,14 @@ class EdurepRecord implements Record
     }
 
     /**
+     * @param string[] $authors
+     */
+    public function setAuthors(array $authors)
+    {
+        $this->authors = $authors;
+    }
+
+    /**
      * @param string $author
      */
     public function addAuthor(string $author)
@@ -249,14 +232,6 @@ class EdurepRecord implements Record
         if (!in_array($author, $this->authors)) {
             $this->authors[] = $author;
         }
-    }
-
-    /**
-     * @param string[] $authors
-     */
-    public function setAuthors(array $authors)
-    {
-        $this->authors = $authors;
     }
 
 }

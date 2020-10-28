@@ -7,7 +7,7 @@ namespace Kennisnet\Edurep;
 class EdurepSearch
 {
     const EDUREP_MAX_STARTRECORD = 1000;
-    const MAX_RECORDS = 100;
+    const MAX_RECORDS            = 100;
 
     const SEARCHTYPE_LOM  = 'lom';
     const SEARCHTYPE_SMO  = 'smo';
@@ -20,7 +20,7 @@ class EdurepSearch
 
     # default search parameters, optional ones can be set by setParameter
     private $parameters
-        = [
+                              = [
             "operation"      => "searchRetrieve",
             "version"        => "1.2",
             "recordPacking"  => "xml",
@@ -29,6 +29,7 @@ class EdurepSearch
         ];
 
     private $searchTerm       = '';
+
     private $queryFilterParts = [];
 
     # extra record schema's
@@ -50,6 +51,7 @@ class EdurepSearch
      * Split results
      *
      * @param string $response
+     *
      * @return \StdClass
      */
     public static function splitResponse(string $response)
@@ -74,10 +76,14 @@ class EdurepSearch
 
             //TODO code from wikiwijs zoeken, cleanup or optimize?
             $record->lomrecordId     = $xpath->evaluate("string(./srw:recordIdentifier/text()[1])", $r);
-            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])", $r);
-            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])", $r);
-            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo", $r);
-            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag", $r);
+            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])",
+                                                        $r);
+            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])",
+                                                        $r);
+            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo",
+                                                     $r);
+            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag",
+                                                     $r);
 
             //Fetch Lom record
             $record->lom = $xpath->query('./srw:recordData/czp:lom', $r)->item(0);
@@ -105,6 +111,7 @@ class EdurepSearch
 
     /**
      * @param int $value
+     *
      * @return $this
      */
     public function setMaximumRecords(int $value)
@@ -120,46 +127,55 @@ class EdurepSearch
 
     /**
      * @param $recordpacking
+     *
      * @return $this
      */
     public function setRecordpacking($recordpacking)
     {
         $this->parameters["recordPacking"] = $recordpacking;
+
         return $this;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setRecordSchema($value)
     {
         $this->parameters["recordSchema"] = $value;
+
         return $this;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setXtermDrilldown($value)
     {
         $this->parameters["x-term-drilldown"] = $value;
+
         return $this;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setSortKeys($value)
     {
         $this->parameters["sortKeys"] = $value;
+
         return $this;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setQuery($value)
@@ -171,6 +187,7 @@ class EdurepSearch
 
     /**
      * @param string $queryPart
+     *
      * @return $this
      */
     public function addFilterPart(string $filterId, string $comparator, string $value, string $connector = '+OR+')
@@ -191,6 +208,7 @@ class EdurepSearch
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function setStartRecord($value)
@@ -199,18 +217,22 @@ class EdurepSearch
             $this->parameters["startRecord"] = $value;
             $this->availablestartrecords     = self::EDUREP_MAX_STARTRECORD - $value;
         } else {
-            throw new \UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".", 23);
+            throw new \UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".",
+                                                23);
         }
+
         return $this;
     }
 
     /**
      * @param $value
+     *
      * @return $this
      */
     public function addXRecordSchema($value)
     {
         $this->recordschemas[] = $value;
+
         return $this;
     }
 
@@ -225,6 +247,7 @@ class EdurepSearch
         if (!empty($this->recordschemas)) {
             $parameters["x-recordSchemas"] = array_unique($this->recordschemas);
         }
+
         return $parameters;
     }
 
@@ -238,6 +261,7 @@ class EdurepSearch
 
     /**
      * @param null $searchType (lom, smo etc)
+     *
      * @return bool|string
      * @throws \Exception
      */
@@ -273,6 +297,7 @@ class EdurepSearch
 
     /**
      * @param null $searchType
+     *
      * @return string
      * @throws \Exception
      */
@@ -287,6 +312,7 @@ class EdurepSearch
 
     /**
      * @param null $searchType
+     *
      * @return string
      */
     public function getQuery($searchType = null)

@@ -15,6 +15,7 @@ class SimpleNormalizer implements RecordNormalizer
 {
     /**
      * @param $data array
+     *
      * @return array
      */
     public function normalize(array $data, string $schema)
@@ -24,6 +25,7 @@ class SimpleNormalizer implements RecordNormalizer
             $eduRecord->setTitle($record['Entry']['Title']);
             $record = $eduRecord;
         });
+
         return $data;
     }
 }

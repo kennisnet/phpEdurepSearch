@@ -1,57 +1,41 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 18-2-19
- * Time: 9:33
- */
 
 namespace Kennisnet\Edurep\Value;
 
 
+use DateTime;
+
 class PublishDate implements Value, Nullable
 {
-    /**
-     * @var \DateTime| null
-     */
     private $publishDate = null;
 
-    public function __construct(\DateTime $dateTime = null)
+    public function __construct(DateTime $dateTime = null)
     {
         $this->publishDate = $dateTime;
     }
 
-    /**
-     * @param \DateTime $value
-     * @return PublishDate
-     */
-    public static function fromNative($value)
+    public static function fromNative($value): self
     {
         return new self($value);
     }
 
-    public function sameValueAs(Value $object)
+    public function sameValueAs(Value $object): bool
     {
         return $this->getValue() === $object->getValue();
     }
 
-    /**
-     * @return \DateTime|null
-     */
-    public function getValue()
+    public function getValue(): ?DateTime
     {
         return $this->publishDate;
     }
 
-    /**
-     * @return string
-     * @throws \Exception
-     */
-    public function __toString(): string
+    public function __toString(): ?string
     {
-        if (!$this->publishDate) return null;
+        if (!$this->publishDate) {
+            return null;
+        }
 
-        $now  = new \DateTime();
+        $now  = new DateTime();
         $diff = $this->publishDate->diff($now);
 
         $parts    = explode(',', $diff->format('%y,%m,%d'));

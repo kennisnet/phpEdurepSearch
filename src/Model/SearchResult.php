@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 14-2-19
- * Time: 11:27
- */
+
 declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Model;
@@ -66,19 +61,19 @@ class SearchResult
     }
 
     /**
-     * @param Record[] $records
-     */
-    public function setRecords(array $records)
-    {
-        $this->records = $records;
-    }
-
-    /**
      * @return Record[]
      */
     public function getRecords()
     {
         return $this->records;
+    }
+
+    /**
+     * @param Record[] $records
+     */
+    public function setRecords(array $records)
+    {
+        $this->records = $records;
     }
 
     /**

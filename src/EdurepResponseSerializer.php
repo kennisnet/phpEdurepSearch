@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 15-2-19
- * Time: 13:29
- */
 
 namespace Kennisnet\Edurep;
 
@@ -65,6 +59,7 @@ abstract class EdurepResponseSerializer implements Serializer
 
     /**
      * @param \DOMDocument $doc
+     *
      * @return \DOMXPath
      */
     private function createXPath(\DOMDocument $doc)
@@ -81,6 +76,83 @@ abstract class EdurepResponseSerializer implements Serializer
 
         return $xpath;
     }
+
+    /**
+     * @param       $element \DOMElement
+     * @param array $recordData
+     * @param int   $level
+     *
+     * @return array|string
+     */
+    function serializeToArray($element, &$recordData = [], $level = 0)
+    {
+        $level++;
+        //list attributes
+        if ($element->hasAttributes()) {
+            foreach ($element->attributes as $attribute) {
+
+                if (isset($recordData['_attributes'][$attribute->name])) {
+                    if (is_string($recordData['_attributes'][$attribute->name])) {
+                        $recordData['_attributes'][$attribute->name] = [
+                            $recordData['_attributes'][$attribute->name],
+                            $attribute->value
+                        ];
+                    } else {
+                        if (is_array($recordData['_attributes'][$attribute->name])) {
+                            $recordData['_attributes'][$attribute->name][] = $attribute->value;
+                        } else {
+                            $recordData['_attributes'][$attribute->name] = $attribute->value;
+                        }
+                    }
+                } else {
+                    $recordData['_attributes'][$attribute->name] = $attribute->value;
+                }
+            }
+        }
+        $prefix = $element->prefix;
+
+        //handle classic node
+        if ($element->nodeType == XML_ELEMENT_NODE) {
+            // Remove the xml ns prefix if part of current nodeName
+            $key = str_replace($prefix . ':', '', $element->nodeName);
+            // Iterates recursive to all children and pass the $recordData with reference
+            if ($element->hasChildNodes()) {
+                $children = $element->childNodes;
+                for ($i = 0; $i < $children->length; $i++) {
+                    $this->serializeToArray($children->item($i), $recordData[$key], $level);
+                }
+            }
+            // This is the edge of the nodes tree. Here the values will be handled
+        } else {
+            if ($element->nodeType == XML_TEXT_NODE || $element->nodeType == XML_CDATA_SECTION_NODE) {
+                // Remove empty strings including newlines and whitespaces
+                $value = trim($element->nodeValue);
+                if (!empty($value)) {
+                    // Is array && not equal the current value as set before, convert it to an array.
+                    if (is_string($recordData)) {
+                        $recordData = [$recordData, $value];
+                    } else {
+                        if (is_array($recordData)) {
+                            $recordData[] = $value;
+                        } else {
+                            $recordData = $value;
+                        }
+                    }
+                }
+            }
+        }
+        if ($level == 1) {
+            return $recordData;
+        }
+    }
+
+    /**
+     * @param \DOMXPath $xpath
+     * @param           $records
+     *
+     * @return mixed
+     */
+    abstract protected function records(\DOMXPath $xpath, $records): array;
 
     private function deserializeDrilldown(\DOMXPath $xpath)
     {
@@ -125,74 +197,4 @@ abstract class EdurepResponseSerializer implements Serializer
 
         return $navigators;
     }
-
-    /**
-     * @param $element \DOMElement
-     * @param array $recordData
-     * @param int $level
-     * @return array|string
-     */
-    function serializeToArray($element, &$recordData = [], $level = 0)
-    {
-        $level++;
-        //list attributes
-        if ($element->hasAttributes()) {
-            foreach ($element->attributes as $attribute) {
-
-                if (isset($recordData['_attributes'][$attribute->name])) {
-                    if (is_string($recordData['_attributes'][$attribute->name])) {
-                        $recordData['_attributes'][$attribute->name] = [$recordData['_attributes'][$attribute->name], $attribute->value];
-                    } else {
-                        if (is_array($recordData['_attributes'][$attribute->name])) {
-                            $recordData['_attributes'][$attribute->name][] = $attribute->value;
-                        } else {
-                            $recordData['_attributes'][$attribute->name] = $attribute->value;
-                        }
-                    }
-                } else {
-                    $recordData['_attributes'][$attribute->name] = $attribute->value;
-                }
-            }
-        }
-        $prefix = $element->prefix;
-
-        //handle classic node
-        if ($element->nodeType == XML_ELEMENT_NODE) {
-            // Remove the xml ns prefix if part of current nodeName
-            $key = str_replace($prefix . ':', '', $element->nodeName);
-            // Iterates recursive to all children and pass the $recordData with reference
-            if ($element->hasChildNodes()) {
-                $children = $element->childNodes;
-                for ($i = 0; $i < $children->length; $i++) {
-                    $this->serializeToArray($children->item($i), $recordData[$key], $level);
-                }
-            }
-            // This is the edge of the nodes tree. Here the values will be handled
-        } else if ($element->nodeType == XML_TEXT_NODE || $element->nodeType == XML_CDATA_SECTION_NODE) {
-            // Remove empty strings including newlines and whitespaces
-            $value = trim($element->nodeValue);
-            if (!empty($value)) {
-                // Is array && not equal the current value as set before, convert it to an array.
-                if (is_string($recordData)) {
-                    $recordData = [$recordData, $value];
-                } else {
-                    if (is_array($recordData)) {
-                        $recordData[] = $value;
-                    } else {
-                        $recordData = $value;
-                    }
-                }
-            }
-        }
-        if ($level == 1) {
-            return $recordData;
-        }
-    }
-
-    /**
-     * @param \DOMXPath $xpath
-     * @param $records
-     * @return mixed
-     */
-    abstract protected function records(\DOMXPath $xpath, $records): array;
 }

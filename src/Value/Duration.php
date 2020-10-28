@@ -1,64 +1,40 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 18-2-19
- * Time: 10:07
- */
+
 declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Value;
 
 
-use phpDocumentor\Reflection\Types\Boolean;
+use DateInterval;
 
 class Duration implements Value, Nullable
 {
     /**
-     * @var \DateInterval
+     * @var DateInterval
      */
     private $duration;
 
-    /**
-     * Duration constructor.
-     *
-     * @param \DateInterval $duration
-     */
-    public function __construct(\DateInterval $duration)
+    public function __construct(DateInterval $duration)
     {
         $this->duration = $duration;
     }
 
-    /**
-     * @param $value \DateInterval
-     * @return Duration|Value
-     */
     public static function fromNative($value): self
     {
         return new self($value);
     }
 
-    /**
-     * @param Value $object
-     * @return bool
-     */
-    public function sameValueAs(Value $object): Boolean
+    public function sameValueAs(Value $object): bool
     {
         return $this->getValue() === $object->getValue();
     }
 
-    /**
-     * @return \DateInterval|mixed
-     */
-    public function getValue()
+    public function getValue(): DateInterval
     {
         return $this->duration;
     }
 
-    /**
-     * @return string|null
-     */
-    public function __toString()
+    public function __toString(): ?string
     {
         if ($this->duration !== null) {
             $parts    = explode(',', $this->duration->format('%d,%h,%i'));
@@ -71,6 +47,7 @@ class Duration implements Value, Nullable
                     return !preg_match('/^0\s/', $part);
                 }
             );
+
             return implode(', ', $parts);
         }
 

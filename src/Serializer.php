@@ -13,6 +13,7 @@ interface Serializer
 {
     /**
      * @param $string
+     *
      * @return array
      */
     public function deserialize($string): array;

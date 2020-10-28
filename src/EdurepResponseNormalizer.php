@@ -1,14 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 14-2-19
- * Time: 12:55
- */
+declare(strict_types=1);
 
 namespace Kennisnet\Edurep;
 
-use Kennisnet\ECK\EckRecordsNormalizer;
 use Kennisnet\Edurep\Exception\InvalidRecordSchemaException;
 use Kennisnet\Edurep\Model\DrilldownNavigator;
 use Kennisnet\Edurep\Model\DrilldownNavigatorItem;
@@ -22,6 +16,7 @@ class EdurepResponseNormalizer implements Normalizer
      * @var Serializer
      */
     private $serializer;
+
     /**
      * @var RecordNormalizer
      */
@@ -31,10 +26,11 @@ class EdurepResponseNormalizer implements Normalizer
      * EdurepResponseNormalizer constructor.
      *
      * @param Serializer $serializer
-     * @param $recordNormalizer
+     * @param            $recordNormalizer
+     *
      * @throws \Exception
      */
-    public function __construct(Serializer $serializer, $recordNormalizer)
+    public function __construct(Serializer $serializer, RecordNormalizer $recordNormalizer)
     {
         $this->serializer = $serializer;
 
@@ -47,21 +43,23 @@ class EdurepResponseNormalizer implements Normalizer
     }
 
 
-    public function supportsNormalization($data, $format = null)
+    public function supportsNormalization($data, $format = null): bool
     {
         return $format === 'xml';
     }
 
     /**
-     * @param mixed $data
+     * @param mixed  $data
      * @param string $format
-     * @param array $context
+     * @param array  $context
+     *
      * @return SearchResult
      * @throws InvalidRecordSchemaException
      */
     public function serialize($data, $format = 'xml', array $context = [])
     {
         $data = $this->serializer->deserialize($data);
+
         return $this->normalize($data);
     }
 
@@ -69,8 +67,9 @@ class EdurepResponseNormalizer implements Normalizer
      * TODO : format must be a enum of supported schema's [eckcs2.1.1]
      *
      * @param array|string $data
-     * @param string $schema of the given records
-     * @param array $context
+     * @param string       $schema of the given records
+     * @param array        $context
+     *
      * @return SearchResult
      * @throws InvalidRecordSchemaException
      * @throws \Exception
@@ -85,8 +84,9 @@ class EdurepResponseNormalizer implements Normalizer
     }
 
     /**
-     * @param $data
+     * @param              $data
      * @param RecordReader $recordReader
+     *
      * @return SearchResult
      * @throws \Exception
      */
@@ -97,7 +97,8 @@ class EdurepResponseNormalizer implements Normalizer
         $result->setNextRecordPosition($data[EdurepResponseSerializer::NEXT_RECORD_POSITION]);
 
         /** @var Record[] $records */
-        $records = $this->recordNormalizer->normalize($data[EdurepResponseSerializer::RECORDS] ?? [], $data[EdurepResponseSerializer::SCHEMA]);
+        $records = $this->recordNormalizer->normalize($data[EdurepResponseSerializer::RECORDS] ?? [],
+                                                      $data[EdurepResponseSerializer::SCHEMA]);
 
         $transformer = new EdurepRecordTransformer();
         $result->setRecords($transformer->transform($records) ?? []);
@@ -106,23 +107,8 @@ class EdurepResponseNormalizer implements Normalizer
 
         // Normalize Drilldown
         $result->setDrilldown($this->normalizeDrilldowns($data[EdurepResponseSerializer::DRILLDOWN]));
-        return $result;
-    }
 
-    /**
-     * @param mixed $data
-     * @param string $type
-     * @param $schema
-     * @param array $context
-     * @return SearchResult
-     * @throws InvalidRecordSchemaException
-     */
-    public function deserialize($data, $type = SearchResult::class, $schema, array $context = [])
-    {
-        if ($this->serializer) {
-            return $this->normalize($this->serializer->deserialize($data), $schema);
-        }
-        throw  new \Exception('Invalid format provided.');
+        return $result;
     }
 
     private function normalizeDrilldowns(array $navigators = [])
@@ -130,22 +116,40 @@ class EdurepResponseNormalizer implements Normalizer
         $navigators = array_map(function ($navigator) {
             /**
              * @var string $name
-             * @var array $items
+             * @var array  $items
              */
             extract($navigator);
             $items = array_map(function ($item) {
                 /**
-                 * @var string $name
+                 * @var string  $name
                  * @var integer $count
                  */
                 extract($item);
 
-                return new DrilldownNavigatorItem($name, $count);
+                return new DrilldownNavigatorItem((string)$name, (int)$count);
             }, $items);
+
             return new DrilldownNavigator($name, $items);
         }, $navigators);
 
         return new EdurepDrilldownResponse($navigators);
+    }
+
+    /**
+     * @param mixed  $data
+     * @param string $type
+     * @param        $schema
+     * @param array  $context
+     *
+     * @return SearchResult
+     * @throws InvalidRecordSchemaException
+     */
+    public function deserialize($data, string $type = SearchResult::class, $schema, array $context = [])
+    {
+        if ($this->serializer) {
+            return $this->normalize($this->serializer->deserialize($data), $schema);
+        }
+        throw  new \Exception('Invalid format provided.');
     }
 
 }

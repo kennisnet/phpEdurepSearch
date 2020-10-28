@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 18-2-19
- * Time: 9:24
- */
+
 declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Model;
@@ -12,6 +7,9 @@ namespace Kennisnet\Edurep\Model;
 
 class EdurepDrilldownResponse
 {
+    /**
+     * @var DrilldownNavigator[]
+     */
     private $navigators;
 
     public function __construct(array $navigators = [])
@@ -19,10 +17,7 @@ class EdurepDrilldownResponse
         $this->navigators = $navigators;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getNavigators()
+    public function getNavigators(): array
     {
         return $this->navigators;
     }

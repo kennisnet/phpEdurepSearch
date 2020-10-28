@@ -1,21 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 19-2-19
- * Time: 12:04
- */
 declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Serializer;
 
+use DOMXPath;
 use Kennisnet\Edurep\EdurepResponseSerializer;
-use Kennisnet\Edurep\Record;
 use Kennisnet\NLLOM\DomToLomMapper;
+use Kennisnet\NLLOM\NLLOM;
+
 
 class NLLOMResponseSerializer extends EdurepResponseSerializer
 {
-    protected function records(\DOMXPath $xpath, $records): array
+    /**
+     * @return array<string,NLLOM>|array
+     */
+    protected function records(DOMXPath $xpath, $records): array
     {
         $data = [];
         foreach ($records as $record) {
@@ -29,15 +28,7 @@ class NLLOMResponseSerializer extends EdurepResponseSerializer
             $nllom           = $mapper->domToLom($records);
             $data[$recordId] = $nllom;
         }
+
         return $data;
-    }
-
-    /**
-     * @param $records Record[]
-     * @param $xpath \DOMXPath
-     */
-    function aggregateRecords($records, $xpath)
-    {
-
     }
 }
