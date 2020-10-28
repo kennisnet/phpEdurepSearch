@@ -1,0 +1,65 @@
+This is a PHP package for interfacing with the Edurep search engine. It consists of two parts, EdurepSearch and EdurepResults.
+
+In EdurepSearch you can set optional search parameters like a query or the number of records it should return, and perform a query for LOM or SMO records.
+
+In EdurepResults you can load a raw XML Edurep resultstring and retrieve a result object.
+
+Requirements:
+ - PHP 5.1 or higher compiled with curl and simplexml
+ - define a timezone with date_default_timezone_set()
+
+Usage:
+View the example.php for details using this package.
+
+
+The following table shows the currently supported LOM response fields; if the field is returned single- or multivalued and whether the field is returned with recordSchema lom or oai_dc, or x-recordSchema extra. 
+
+                                        #       lom     oai_dc  extra
+---------------------------------------------------------------------
+general.title                           S       x       x
+general.catalogentry                    M       x
+general.language                        M       x       x
+general.description                     S       x       x
+general.keyword                         M       x       x
+general.aggregationlevel                S       x
+lifecycle.contribute.author             M               x       x
+lifecycle.contribute.publisher          M               x       x
+technical.location                      S       x       x
+technical.format                        S       x       x
+technical.duration                      S       x
+educational.learningresourcetype        M       x
+educational.intendedenduserrole         M       x
+educational.context                     M       x
+educational.typicalagerange             S       x
+educational.typicallearningtime         S       x               x
+rights.cost                             S       x
+rights.description                      S       x       x
+classification                          M                       x
+
+Pagination:
+Preformatted navigation values are available in the Results class. There is an Edurep set maximum of pages that can be requested, set to startRecord of 4000. An exception will be given if the startRecord is equal or higher, but the navigation option will be provided. This trigger can be used to inform the user of the arrival of the last page (because the recordtotal can be higher).
+
+Format:
+If a format is provided in the metadata, the class will try to aggregate it to an aggregate doctype. By default, it will aggregate common formats to text, image, audio, video, spreadsheet, presentation, pdf, archive, digiboard or non-digital. When it can't aggregate or when there is no format, the value for doctype is "unknown".
+
+Duration:
+If any of technical duration or typicallearningtime exist, they are converted to seconds and aggregated to the time key in the record array. So if any duration is present in the metadata, it's available in the time key, with typicallearningtime taking precedence.
+
+Classification:
+From the available classifications, only Begrippenkader uuid's are returned with the corresponding entry if available.
+
+Exceptions:
+The Search and Result classes can trigger multiple exceptions:
+
+class       exception                   code    description
+---------------------------------------------------------------------
+Search      InvalidArgumentException    1       unsupported parameter
+Search      NetworkException            2       network error
+Search      XmlException                3       XML parse error
+Search      UnexpectedValueException    21      invalid API key
+Search      UnexpectedValueException    22      invalid maximumRecords
+Search      UnexpectedValueException    23      invalid startRecord
+Results     UnexpectedValueException    24      error in query
+Results     UnexpectedValueException    25      postfix query
+Results     UnexpectedValueException    26      prefix query with 1+ wildcard
+Results     UnexpectedValueException    27      prefix query with 1 character

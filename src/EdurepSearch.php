@@ -1,4 +1,5 @@
 <?php
+
 namespace Kennisnet\Edurep;
 
 //(overleg div over exception aan kapstok)
@@ -6,9 +7,10 @@ namespace Kennisnet\Edurep;
 class EdurepSearch
 {
     const EDUREP_MAX_STARTRECORD = 1000;
+    const MAX_RECORDS = 100;
 
-    const SEARCHTYPE_LOM = 'lom';
-    const SEARCHTYPE_SMO = 'smo';
+    const SEARCHTYPE_LOM  = 'lom';
+    const SEARCHTYPE_SMO  = 'smo';
     const SEARCHTYPE_PLUS = 'plus';
 
     private $config;
@@ -17,13 +19,17 @@ class EdurepSearch
     private $response = "";
 
     # default search parameters, optional ones can be set by setParameter
-    private $parameters = [
-        "operation"     => "searchRetrieve",
-        "version"       => "1.2",
-        "recordPacking" => "xml", //TODO string ?
-        "query"         => "",
-        "maximumRecords" => 100
-    ];
+    private $parameters
+        = [
+            "operation"      => "searchRetrieve",
+            "version"        => "1.2",
+            "recordPacking"  => "xml",
+            "query"          => "",
+            "maximumRecords" => self::MAX_RECORDS
+        ];
+
+    private $searchTerm       = '';
+    private $queryFilterParts = [];
 
     # extra record schema's
     private $recordschemas = [];
@@ -40,12 +46,70 @@ class EdurepSearch
     }
 
     /**
+     * TODO Handle multiple formats, drilldowns, x-recordSchema etc?
+     * Split results
+     *
+     * @param string $response
+     * @return \StdClass
+     */
+    public static function splitResponse(string $response)
+    {
+        $dom = new \DOMDocument('1.0', 'utf-8');
+        $dom->loadXML($response, LIBXML_NOENT | LIBXML_NSCLEAN);
+
+        $xpath = self::createXPath($dom);
+
+        $obj = new \StdClass;
+
+        $obj->version            = (string)$xpath->query('//srw:version')[0]->nodeValue;
+        $obj->numberOfRecords    = (int)$xpath->query('//srw:numberOfRecords')[0]->nodeValue;
+        $obj->nextRecordPosition = (int)$xpath->query('//srw:nextRecordPosition')[0]->nodeValue;
+        $obj->records            = [];
+
+        $records = $xpath->query('//srw:records/srw:record');
+
+        foreach ($records as $r) {
+
+            $record = new \StdClass();
+
+            //TODO code from wikiwijs zoeken, cleanup or optimize?
+            $record->lomrecordId     = $xpath->evaluate("string(./srw:recordIdentifier/text()[1])", $r);
+            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])", $r);
+            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])", $r);
+            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo", $r);
+            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag", $r);
+
+            //Fetch Lom record
+            $record->lom = $xpath->query('./srw:recordData/czp:lom', $r)->item(0);
+
+            $obj->records[] = $record;
+        }
+
+        return $obj;
+    }
+
+    private static function createXPath(\DOMDocument $doc)
+    {
+        $xpath = new \DOMXPath($doc);
+        $xpath->registerNamespace('srw', 'http://www.loc.gov/zing/srw/');
+        $xpath->registerNamespace('czp', 'http://www.imsglobal.org/xsd/imsmd_v1p2');
+        $xpath->registerNamespace('sad', 'http://xsd.kennisnet.nl/smd/sad');
+        $xpath->registerNamespace('smo', 'http://xsd.kennisnet.nl/smd/1.0/');
+        $xpath->registerNamespace('edurep', 'http://meresco.org/namespace/users/kennisnet/edurep');
+        $xpath->registerNamespace('dd', 'http://meresco.org/namespace/drilldown');
+        $xpath->registerNamespace('hr', 'http://xsd.kennisnet.nl/smd/hreview/1.0/');
+        $xpath->registerNamespace('hr2', 'http://xsd.kennisnet.nl/smd/1.0/');
+
+        return $xpath;
+    }
+
+    /**
      * @param int $value
      * @return $this
      */
     public function setMaximumRecords(int $value)
     {
-        if ($value >= 0 && $value <= 100) {
+        if ($value >= 0 && $value <= self::MAX_RECORDS) {
             $this->parameters["maximumRecords"] = $value;
         } else {
             throw new \UnexpectedValueException("The value for maximumRecords should be between 0 and 100.", 22);
@@ -100,9 +164,30 @@ class EdurepSearch
      */
     public function setQuery($value)
     {
-        $this->parameters["query"] = urlencode($value);;
+        $this->searchTerm = urlencode(trim($value));
+
         return $this;
     }
+
+    /**
+     * @param string $queryPart
+     * @return $this
+     */
+    public function addFilterPart(string $filterId, string $comparator, string $value, string $connector = '+OR+')
+    {
+        if (!array_key_exists($filterId, $this->queryFilterParts)) {
+            $this->queryFilterParts[$filterId] = [];
+        }
+
+        $this->queryFilterParts[$filterId][] = [
+            'comparator' => $comparator,
+            'value'      => $value,
+            'connector'  => $connector
+        ];
+
+        return $this;
+    }
+
 
     /**
      * @param $value
@@ -112,7 +197,7 @@ class EdurepSearch
     {
         if ($value >= 1 && $value <= self::EDUREP_MAX_STARTRECORD) {
             $this->parameters["startRecord"] = $value;
-            $this->availablestartrecords = self::EDUREP_MAX_STARTRECORD - $value;
+            $this->availablestartrecords     = self::EDUREP_MAX_STARTRECORD - $value;
         } else {
             throw new \UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".", 23);
         }
@@ -137,39 +222,10 @@ class EdurepSearch
     public function getParameters()
     {
         $parameters = $this->parameters;
-        if (!empty($recordschemas)) {
+        if (!empty($this->recordschemas)) {
             $parameters["x-recordSchemas"] = array_unique($this->recordschemas);
         }
         return $parameters;
-    }
-
-    /**
-     * @param null $searchType
-     * @return string
-     */
-    public function getQuery($searchType = null)
-    {
-        # making sure the startRecord/maximumRecord combo does
-        # not trigger an exception.
-        if ($this->availablestartrecords < $this->parameters["maximumRecords"]) {
-            $this->parameters["maximumRecords"] = $this->availablestartrecords;
-        }
-
-        # setting arguments
-        $arguments = [];
-        foreach ($this->parameters as $key => $value) {
-            $arguments[] = $key . "=" . $value;
-        }
-
-        # initial path and query
-        $query = $this->config->getStrategy()->getSearchUrl($searchType) . "?" . implode("&", $arguments);
-
-        # adding x-recordSchema's
-        foreach (array_unique($this->recordschemas) as $recordschema) {
-            $query .= "&x-recordSchema=" . $recordschema;
-        }
-
-        return $query;
     }
 
     /**
@@ -178,20 +234,6 @@ class EdurepSearch
     public function getResponse()
     {
         return $this->response;
-    }
-
-    /**
-     * @param null $searchType
-     * @return string
-     * @throws \Exception
-     */
-    public function getRequestUrl($searchType = null)
-    {
-        if (!$this->parameters['query']) {
-            throw new \Exception('Missing query');
-        }
-
-        return $this->config->getBaseUrl() . $this->getQuery($searchType);
     }
 
     /**
@@ -230,59 +272,60 @@ class EdurepSearch
     }
 
     /**
-     * TODO Handle multiple formats, drilldowns, x-recordSchema etc?
-     * Split results
-     * @param string $response
-     * @return \StdClass
+     * @param null $searchType
+     * @return string
+     * @throws \Exception
      */
-    public static function splitResponse(string $response)
+    public function getRequestUrl($searchType = null)
     {
-        $dom = new \DOMDocument('1.0', 'utf-8');
-        $dom->loadXML($response, LIBXML_NOENT|LIBXML_NSCLEAN);
-
-        $xpath = self::createXPath($dom);
-
-        $obj = new \StdClass;
-
-        $obj->version = (string) $xpath->query('//srw:version')[0]->nodeValue;
-        $obj->numberOfRecords = (int) $xpath->query('//srw:numberOfRecords')[0]->nodeValue;
-        $obj->nextRecordPosition = (int) $xpath->query('//srw:nextRecordPosition')[0]->nodeValue;
-        $obj->records = [];
-
-        $records = $xpath->query('//srw:records/srw:record');
-
-        foreach ($records as $r) {
-
-            $record = new \StdClass();
-
-            //TODO code from wikiwijs zoeken, cleanup or optimize?
-            $record->lomrecordId     = $xpath->evaluate("string(./srw:recordIdentifier/text()[1])", $r);
-            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])", $r);
-            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])", $r);
-            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo", $r);
-            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag", $r);
-
-            //Fetch Lom record
-            $record->lom = $xpath->query('./srw:recordData/czp:lom', $r)->item(0);
-
-            $obj->records[] = $record;
+        if (!$this->searchTerm) {
+            throw new \Exception('Missing query');
         }
 
-        return $obj;
+        return $this->config->getBaseUrl() . $this->getQuery($searchType);
     }
 
-    private static function createXPath (\DOMDocument $doc)
+    /**
+     * @param null $searchType
+     * @return string
+     */
+    public function getQuery($searchType = null)
     {
-        $xpath = new \DOMXPath($doc);
-        $xpath->registerNamespace('srw', 'http://www.loc.gov/zing/srw/');
-        $xpath->registerNamespace('czp', 'http://www.imsglobal.org/xsd/imsmd_v1p2');
-        $xpath->registerNamespace('sad', 'http://xsd.kennisnet.nl/smd/sad');
-        $xpath->registerNamespace('smo', 'http://xsd.kennisnet.nl/smd/1.0/');
-        $xpath->registerNamespace('edurep', 'http://meresco.org/namespace/users/kennisnet/edurep');
-        $xpath->registerNamespace('dd', 'http://meresco.org/namespace/drilldown');
-        $xpath->registerNamespace('hr', 'http://xsd.kennisnet.nl/smd/hreview/1.0/');
-        $xpath->registerNamespace('hr2', 'http://xsd.kennisnet.nl/smd/1.0/');
+        # making sure the startRecord/maximumRecord combo does
+        # not trigger an exception.
+        if ($this->availablestartrecords < $this->parameters["maximumRecords"]) {
+            $this->parameters["maximumRecords"] = $this->availablestartrecords;
+        }
 
-        return $xpath;
+        $searchQuery = $this->searchTerm;
+        foreach ($this->queryFilterParts as $filterId => $queryFilterPart) {
+            $searchQuery .= '+AND+' . urlencode('(');
+            foreach ($queryFilterPart as $key => $item) {
+                if ($key > 0) {
+                    $searchQuery .= $item['connector'];
+                }
+                $searchQuery .= urlencode('(') . $filterId . $item['comparator'] . urlencode($item['value']) . urlencode(')');
+
+            }
+            $searchQuery .= urlencode(')');
+        }
+
+        $this->parameters['query'] = $searchQuery;
+
+        # setting arguments
+        $arguments = [];
+        foreach ($this->parameters as $key => $value) {
+            $arguments[] = $key . "=" . $value;
+        }
+
+        # initial path and query
+        $query = $this->config->getStrategy()->getSearchUrl($searchType) . "?" . implode("&", $arguments);
+
+        # adding x-recordSchema's
+        foreach (array_unique($this->recordschemas) as $recordschema) {
+            $query .= "&x-recordSchema=" . $recordschema;
+        }
+
+        return $query;
     }
 }

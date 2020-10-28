@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace Kennisnet\Edurep;
 
 class DefaultSearchConfig implements SearchConfig
@@ -9,8 +11,8 @@ class DefaultSearchConfig implements SearchConfig
 
     public function __construct(StrategyType $strategy, $baseUrl, $maxCurlRetries = 3)
     {
-        $this->strategy = $strategy;
-        $this->baseUrl = $baseUrl;
+        $this->strategy       = $strategy;
+        $this->baseUrl        = $baseUrl;
         $this->maxCurlRetries = $maxCurlRetries;
     }
 
