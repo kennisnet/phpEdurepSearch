@@ -1,8 +1,6 @@
 {
   "name": "kennisnet/edurepsearch",
   "description": "Edurep and Catalogservice search tool",
-  "homepage": "https://github.com/kennisnet/phpEdurepSearch",
-  "license": "MIT",
   "autoload": {
     "psr-4": {
       "Kennisnet\\Edurep\\": "src/",
@@ -10,11 +8,18 @@
     }
   },
   "require": {
-    "php": "^7.0.8",
-    "ext-curl": "*"
+    "php": "^7.3",
+    "ext-curl": "*",
+    "ext-dom": "*",
+    "kennisnet/nllom": "^1.1",
+    "kennisnet/phpeckcs": "dev-master",
+    "ext-json": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.0",
-    "phpunit/php-code-coverage": "^5.0"
-  }
+    "phpunit/phpunit": "^9.4",
+    "phpunit/php-code-coverage": "^9.2",
+    "phpstan/phpstan": "^0.12.52"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Kennisnet\Edurep;
 
 interface StrategyType

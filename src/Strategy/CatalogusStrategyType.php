@@ -1,6 +1,9 @@
 <?php
+declare(strict_types=1);
 
-namespace Kennisnet\Edurep;
+namespace Kennisnet\Edurep\Strategy;
+
+use Kennisnet\Edurep\StrategyType;
 
 class CatalogusStrategyType implements StrategyType
 {
