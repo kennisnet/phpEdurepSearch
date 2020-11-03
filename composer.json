@@ -1,6 +1,7 @@
 {
   "name": "kennisnet/edurepsearch",
   "description": "Edurep and Catalogservice search tool",
+  "version": "1.0.0",
   "autoload": {
     "psr-4": {
       "Kennisnet\\Edurep\\": "src/",
