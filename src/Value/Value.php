@@ -6,28 +6,16 @@ interface Value
 {
     /**
      * Returns a object taking PHP native value(s) as argument(s).
-     *
-     * @param $value
-     *
-     * @return Value
      */
-    public static function fromNative($value);
+    /** @phpstan-ignore-next-line */
+    public static function fromNative($value): Value;
 
     /**
      * Compare two ValueObjectInterface and tells whether they can be considered equal
-     *
-     * @param Value $object
-     *
-     * @return bool
      */
-    public function sameValueAs(Value $object);
+    public function sameValueAs(Value $object): bool;
 
-    /**
-     * Returns a string representation of the object
-     *
-     * @return string
-     */
-    public function __toString();
+    public function __toString(): string;
 
     /**
      * @return mixed

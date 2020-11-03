@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/" xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/" xmlns:xcql="http://www.loc.gov/zing/cql/xcql/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meresco_srw="http://meresco.org/namespace/srw#">
+  <srw:version>1.2</srw:version>
+  <srw:numberOfRecords>42119</srw:numberOfRecords>
+  <srw:records>
+    <srw:record>
+      <srw:recordSchema>lom</srw:recordSchema>
+      <srw:recordPacking>xml</srw:recordPacking>
+      <srw:recordIdentifier>unittest:fbbec4c8-7b7c-47a1-81c6-e59d088463d4</srw:recordIdentifier>
+      <srw:recordData>
+        <czp:lom xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:czp="http://www.imsglobal.org/xsd/imsmd_v1p2" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsmd_v1p2 http://www.imsglobal.org/xsd/imsmd_v1p2p4.xsd">
+          <czp:general>
+            <czp:title>
+              <czp:langstring xml:lang="en">For unit test</czp:langstring>
+            </czp:title>
+          </czp:general>
+        </czp:lom>
+      </srw:recordData>
+    </srw:record>
+  </srw:records>
+  <srw:nextRecordPosition>2</srw:nextRecordPosition>
+  <srw:echoedSearchRetrieveRequest>
+    <srw:version>1.2</srw:version>
+    <srw:query>edurep AND ((about.repository exact unittest))</srw:query>
+    <srw:startRecord>1</srw:startRecord>
+    <srw:maximumRecords>1</srw:maximumRecords>
+    <srw:recordPacking>xml</srw:recordPacking>
+    <srw:recordSchema>lom</srw:recordSchema>
+    <srw:x-recordSchema>smbAggregatedData</srw:x-recordSchema>
+    <srw:x-recordSchema>meta</srw:x-recordSchema>
+  </srw:echoedSearchRetrieveRequest>
+  <srw:extraResponseData>
+    <querytimes xmlns="http://meresco.org/namespace/timing">
+      <sruHandling>PT0.032S</sruHandling>
+      <sruQueryTime>PT0.024S</sruQueryTime>
+      <index>PT0.016S</index>
+    </querytimes>
+  </srw:extraResponseData>
+</srw:searchRetrieveResponse>

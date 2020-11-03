@@ -2,7 +2,8 @@
 
 namespace Kennisnet\Edurep;
 
-//(overleg div over exception aan kapstok)
+use Exception;
+use UnexpectedValueException;
 
 class EdurepSearch
 {
@@ -13,184 +14,115 @@ class EdurepSearch
     const SEARCHTYPE_SMO  = 'smo';
     const SEARCHTYPE_PLUS = 'plus';
 
-    private $config;
-
-    # contains the raw curl response
-    private $response = "";
-
-    # default search parameters, optional ones can be set by setParameter
-    private $parameters
-                              = [
-            "operation"      => "searchRetrieve",
-            "version"        => "1.2",
-            "recordPacking"  => "xml",
-            "query"          => "",
-            "maximumRecords" => self::MAX_RECORDS
-        ];
-
-    private $searchTerm       = '';
-
-    private $queryFilterParts = [];
-
-    # extra record schema's
-    private $recordschemas = [];
-
-    # internal counter for available startrecords
-    private $availablestartrecords = 1000;
-
-    # internal counter for curl retries
-    private $curlretries = 0;
-
-    public function __construct(DefaultSearchConfig $config)
-    {
-        $this->config = $config;
-    }
+    /**
+     * @var SearchClient
+     */
+    protected $searchClient;
 
     /**
-     * TODO Handle multiple formats, drilldowns, x-recordSchema etc?
-     * Split results
-     *
-     * @param string $response
-     *
-     * @return \StdClass
+     * @var DefaultSearchConfig
      */
-    public static function splitResponse(string $response)
+    private $config;
+
+    /**
+     * @var string
+     */
+    private $response = "";
+
+    /**
+     * @var array<string,string|int|null>
+     */
+    private $parameters = [
+        "operation"      => "searchRetrieve",
+        "version"        => "1.2",
+        "recordPacking"  => "xml",
+        "query"          => "",
+        "maximumRecords" => self::MAX_RECORDS
+    ];
+
+    /**
+     * @var string
+     */
+    private $searchTerm = '';
+
+    /**
+     * @var array<mixed>
+     */
+    private $queryFilterParts = [];
+
+    /**
+     * extra record schema's
+     * @var array
+     */
+    private $recordschemas = [];
+
+    /**
+     * internal counter for available startrecords
+     * @var int
+     */
+    private $availablestartrecords = 1000;
+
+    public function __construct(DefaultSearchConfig $config, ?SearchClient $searchClient = null)
     {
-        $dom = new \DOMDocument('1.0', 'utf-8');
-        $dom->loadXML($response, LIBXML_NOENT | LIBXML_NSCLEAN);
-
-        $xpath = self::createXPath($dom);
-
-        $obj = new \StdClass;
-
-        $obj->version            = (string)$xpath->query('//srw:version')[0]->nodeValue;
-        $obj->numberOfRecords    = (int)$xpath->query('//srw:numberOfRecords')[0]->nodeValue;
-        $obj->nextRecordPosition = (int)$xpath->query('//srw:nextRecordPosition')[0]->nodeValue;
-        $obj->records            = [];
-
-        $records = $xpath->query('//srw:records/srw:record');
-
-        foreach ($records as $r) {
-
-            $record = new \StdClass();
-
-            //TODO code from wikiwijs zoeken, cleanup or optimize?
-            $record->lomrecordId     = $xpath->evaluate("string(./srw:recordIdentifier/text()[1])", $r);
-            $record->lomrating       = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:averageNormalizedRating/text()[1])",
-                                                        $r);
-            $record->lomnumOfRatings = $xpath->evaluate("string(./srw:extraRecordData/recordData[@recordSchema='smbAggregatedData']/sad:smbAggregatedData/sad:numberOfRatings/text()[1])",
-                                                        $r);
-            $record->lomreviewNodes  = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smo']/smo:smo",
-                                                     $r);
-            $record->lomtagNodes     = $xpath->query("./srw:extraRecordData/recordData[@recordSchema='smbAggregatedDataExtra']/sad:smbAggregatedDataExtra/edurep:tag",
-                                                     $r);
-
-            //Fetch Lom record
-            $record->lom = $xpath->query('./srw:recordData/czp:lom', $r)->item(0);
-
-            $obj->records[] = $record;
+        if ($searchClient === null) {
+            $searchClient = new SearchClient();
         }
-
-        return $obj;
-    }
-
-    private static function createXPath(\DOMDocument $doc)
-    {
-        $xpath = new \DOMXPath($doc);
-        $xpath->registerNamespace('srw', 'http://www.loc.gov/zing/srw/');
-        $xpath->registerNamespace('czp', 'http://www.imsglobal.org/xsd/imsmd_v1p2');
-        $xpath->registerNamespace('sad', 'http://xsd.kennisnet.nl/smd/sad');
-        $xpath->registerNamespace('smo', 'http://xsd.kennisnet.nl/smd/1.0/');
-        $xpath->registerNamespace('edurep', 'http://meresco.org/namespace/users/kennisnet/edurep');
-        $xpath->registerNamespace('dd', 'http://meresco.org/namespace/drilldown');
-        $xpath->registerNamespace('hr', 'http://xsd.kennisnet.nl/smd/hreview/1.0/');
-        $xpath->registerNamespace('hr2', 'http://xsd.kennisnet.nl/smd/1.0/');
-
-        return $xpath;
+        $this->config       = $config;
+        $this->searchClient = $searchClient;
     }
 
     /**
      * @param int $value
      *
-     * @return $this
+     * @return self
      */
-    public function setMaximumRecords(int $value)
+    public function setMaximumRecords(int $value): self
     {
         if ($value >= 0 && $value <= self::MAX_RECORDS) {
             $this->parameters["maximumRecords"] = $value;
         } else {
-            throw new \UnexpectedValueException("The value for maximumRecords should be between 0 and 100.", 22);
+            throw new UnexpectedValueException("The value for maximumRecords should be between 0 and 100.", 22);
         }
 
         return $this;
     }
 
-    /**
-     * @param $recordpacking
-     *
-     * @return $this
-     */
-    public function setRecordpacking($recordpacking)
+    public function setRecordpacking(string $recordPacking): self
     {
-        $this->parameters["recordPacking"] = $recordpacking;
+        $this->parameters["recordPacking"] = $recordPacking;
 
         return $this;
     }
 
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setRecordSchema($value)
+    public function setRecordSchema(string $value): self
     {
         $this->parameters["recordSchema"] = $value;
 
         return $this;
     }
 
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setXtermDrilldown($value)
+    public function setXtermDrilldown(string $value): self
     {
         $this->parameters["x-term-drilldown"] = $value;
 
         return $this;
     }
 
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setSortKeys($value)
+    public function setSortKeys(string $value): self
     {
         $this->parameters["sortKeys"] = $value;
 
         return $this;
     }
 
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function setQuery($value)
+    public function setQuery(string $value): self
     {
         $this->searchTerm = urlencode(trim($value));
 
         return $this;
     }
 
-    /**
-     * @param string $queryPart
-     *
-     * @return $this
-     */
-    public function addFilterPart(string $filterId, string $comparator, string $value, string $connector = '+OR+')
+    public function addFilterPart(string $filterId, string $comparator, string $value, string $connector = '+OR+'): self
     {
         if (!array_key_exists($filterId, $this->queryFilterParts)) {
             $this->queryFilterParts[$filterId] = [];
@@ -205,31 +137,23 @@ class EdurepSearch
         return $this;
     }
 
-
     /**
-     * @param $value
-     *
-     * @return $this
+     * @throws UnexpectedValueException
      */
-    public function setStartRecord($value)
+    public function setStartRecord(int $value): self
     {
         if ($value >= 1 && $value <= self::EDUREP_MAX_STARTRECORD) {
             $this->parameters["startRecord"] = $value;
             $this->availablestartrecords     = self::EDUREP_MAX_STARTRECORD - $value;
         } else {
-            throw new \UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".",
-                                                23);
+            throw new UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".",
+                                               23);
         }
 
         return $this;
     }
 
-    /**
-     * @param $value
-     *
-     * @return $this
-     */
-    public function addXRecordSchema($value)
+    public function addXRecordSchema(string $value): self
     {
         $this->recordschemas[] = $value;
 
@@ -239,9 +163,9 @@ class EdurepSearch
     /**
      * Retrieve all local parameters.
      *
-     * @return array All Edurep parameters and values
+     * @return array<string, array|int|string|null> All Edurep parameters and values
      */
-    public function getParameters()
+    public function getParameters(): array
     {
         $parameters = $this->parameters;
         if (!empty($this->recordschemas)) {
@@ -251,71 +175,37 @@ class EdurepSearch
         return $parameters;
     }
 
-    /**
-     * @return string
-     */
-    public function getResponse()
+    public function getResponse(): string
     {
         return $this->response;
     }
 
     /**
-     * @param null $searchType (lom, smo etc)
-     *
-     * @return bool|string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function search($searchType = null)
+    public function search(?string $searchType = null): string
     {
         $request = $this->getRequestUrl($searchType);
+        $result  = $this->searchClient->executeQuery($request, $this->config->getMaxCurlRetries());
 
-        $curl = curl_init($request);
-        curl_setopt($curl, CURLOPT_HEADER, false);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_ENCODING, "gzip,deflate");
-        $this->response = curl_exec($curl);
-
-        if (!$this->response) {
-            if (curl_errno($curl) == 56) {
-                # Failure with receiving network data, could be a 403
-                if ($this->curlretries < $this->config->getMaxCurlRetries()) {
-                    sleep(1);
-                    $this->curlretries++;
-                    $this->search();
-                } else {
-                    throw new \Exception(curl_error($curl));
-                }
-            } else {
-                throw new \Exception(curl_error($curl));
-            }
-        }
-
-        curl_close($curl);
+        $this->response = $result;
 
         return $this->response;
     }
 
     /**
-     * @param null $searchType
-     *
-     * @return string
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getRequestUrl($searchType = null)
+    public function getRequestUrl(?string $searchType = null): string
     {
         if (!$this->searchTerm) {
-            throw new \Exception('Missing query');
+            throw new Exception('Missing query');
         }
 
         return $this->config->getBaseUrl() . $this->getQuery($searchType);
     }
 
-    /**
-     * @param null $searchType
-     *
-     * @return string
-     */
-    public function getQuery($searchType = null)
+    public function getQuery(?string $searchType = null): string
     {
         # making sure the startRecord/maximumRecord combo does
         # not trigger an exception.

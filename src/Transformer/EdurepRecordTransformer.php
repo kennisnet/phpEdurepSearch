@@ -2,7 +2,7 @@
 
 namespace Kennisnet\Edurep\Transformer;
 
-use Kennisnet\Edurep\EckRecord;
+use Kennisnet\ECK\EckRecord;
 use Kennisnet\Edurep\Model\EdurepRecord;
 use Kennisnet\NLLOM\NLLOM;
 
@@ -52,6 +52,10 @@ class EdurepRecordTransformer
 
     public function fromNLLOMRecord(NLLOM $nllomRecord): EdurepRecord
     {
+        if (!method_exists($nllomRecord, 'getRecordId')) {
+            throw new \Exception('Not implemented, NLLOM record id missing');
+        }
+
         $edurepRecord = new EdurepRecord($nllomRecord->getRecordId());
         $edurepRecord->setTitle($nllomRecord->getTitle());
         $edurepRecord->setDescription($nllomRecord->getDescription());

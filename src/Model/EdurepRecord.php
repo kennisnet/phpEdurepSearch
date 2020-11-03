@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Model;
 
+use DateInterval;
 use DateTime;
+use Exception;
 use Kennisnet\Edurep\Record;
 use Kennisnet\Edurep\Value\Duration;
 use Kennisnet\Edurep\Value\PublishDate;
@@ -41,7 +43,7 @@ class EdurepRecord implements Record
     private $resourceTypes = [];
 
     /**
-     * @var \DateInterval
+     * @var DateInterval|null
      */
     private $duration;
 
@@ -56,7 +58,7 @@ class EdurepRecord implements Record
     private $authors = [];
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     private $publishDate;
 
@@ -91,7 +93,7 @@ class EdurepRecord implements Record
         return $this->description;
     }
 
-    public function setDescription(string $description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
@@ -101,7 +103,7 @@ class EdurepRecord implements Record
         return $this->location;
     }
 
-    public function setLocation(string $location)
+    public function setLocation(string $location): void
     {
         $this->location = $location;
     }
@@ -112,41 +114,29 @@ class EdurepRecord implements Record
     }
 
     /**
-     * @param \string[] $resourceTypes
+     * @param string[] $resourceTypes
      */
-    public function setResourceTypes($resourceTypes)
+    public function setResourceTypes(array $resourceTypes): void
     {
         $this->resourceTypes = $resourceTypes;
     }
 
-    /**
-     * @return string
-     */
-    public function getPublisher()
+    public function getPublisher(): string
     {
         return $this->publisher;
     }
 
-    /**
-     * @param string $publisher
-     */
-    public function setPublisher(string $publisher)
+    public function setPublisher(string $publisher): void
     {
         $this->publisher = $publisher;
     }
 
-    /**
-     * @return string
-     */
-    public function getThumbnail()
+    public function getThumbnail(): string
     {
         return $this->thumbnail;
     }
 
-    /**
-     * @param string $thumbnail
-     */
-    public function setThumbnail($thumbnail)
+    public function setThumbnail(string $thumbnail): void
     {
         $this->thumbnail = $thumbnail;
     }
@@ -159,51 +149,35 @@ class EdurepRecord implements Record
         return $this->catalogEntryUris;
     }
 
-    /**
-     * @return Duration|null
-     */
-    public function getSimpleDuration()
+    public function getSimpleDuration(): ?Duration
     {
         return new Duration($this->getDuration() ?? null);
     }
 
-    /**
-     * @return \DateInterval
-     */
-    public function getDuration()
+    public function getDuration(): ?DateInterval
     {
         return $this->duration;
     }
 
-    /**
-     * @param \DateInterval $duration
-     */
-    public function setDuration($duration)
+    public function setDuration(?DateInterval $duration): void
     {
         $this->duration = $duration;
     }
 
     /**
-     * @return PublishDate
-     * @throws \Exception
+     * @throws Exception
      */
-    public function getPublishedSince()
+    public function getPublishedSince(): PublishDate
     {
         return new PublishDate($this->getPublishDate() ?? null);
     }
 
-    /**
-     * @return DateTime
-     */
-    public function getPublishDate()
+    public function getPublishDate(): ?DateTime
     {
         return $this->publishDate;
     }
 
-    /**
-     * @param DateTime $publishDate
-     */
-    public function setPublishDate($publishDate)
+    public function setPublishDate(?DateTime $publishDate): void
     {
         $this->publishDate = $publishDate;
     }
@@ -219,7 +193,7 @@ class EdurepRecord implements Record
     /**
      * @param string[] $authors
      */
-    public function setAuthors(array $authors)
+    public function setAuthors(array $authors): void
     {
         $this->authors = $authors;
     }
@@ -227,7 +201,7 @@ class EdurepRecord implements Record
     /**
      * @param string $author
      */
-    public function addAuthor(string $author)
+    public function addAuthor(string $author): void
     {
         if (!in_array($author, $this->authors)) {
             $this->authors[] = $author;

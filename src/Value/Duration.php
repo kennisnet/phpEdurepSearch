@@ -19,6 +19,11 @@ class Duration implements Value, Nullable
         $this->duration = $duration;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return self
+     */
     public static function fromNative($value): self
     {
         return new self($value);
@@ -34,7 +39,7 @@ class Duration implements Value, Nullable
         return $this->duration;
     }
 
-    public function __toString(): ?string
+    public function __toString(): string
     {
         if ($this->duration !== null) {
             $parts    = explode(',', $this->duration->format('%d,%h,%i'));
@@ -51,7 +56,7 @@ class Duration implements Value, Nullable
             return implode(', ', $parts);
         }
 
-        return null;
+        return '';
     }
 
 }

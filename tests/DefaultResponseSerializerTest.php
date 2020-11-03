@@ -27,7 +27,7 @@ class DefaultResponseSerializerTest extends TestCase
 
         $serializer = new DefaultResponseSerializer();
 
-        $response = $serializer->deserialize($validResponseXml);
+        $response = $serializer->deserialize($validResponseXml, 'xml');
 
         $this->assertEquals(2, count($response['drilldown']));
         $this->assertEquals('meta.repository.id', $response['drilldown'][0]['name']);
@@ -55,7 +55,7 @@ class DefaultResponseSerializerTest extends TestCase
 
         $serializer = new DefaultResponseSerializer();
 
-        $response = $serializer->deserialize($invalidResponseXml);
+        $response = $serializer->deserialize($invalidResponseXml, 'xml');
 
         $this->assertEquals(2, count($response['drilldown']));
         $this->assertEquals(0, count($response['drilldown'][0]['items']));
@@ -83,7 +83,7 @@ class DefaultResponseSerializerTest extends TestCase
 
         $serializer = new DefaultResponseSerializer();
 
-        $response = $serializer->deserialize($invalidResponseXml);
+        $response = $serializer->deserialize($invalidResponseXml, 'xml');
 
         $this->assertEquals(1, count($response['drilldown']));
     }

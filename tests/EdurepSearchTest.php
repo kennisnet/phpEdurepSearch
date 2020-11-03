@@ -5,6 +5,7 @@ namespace Tests\Kennisnet\Edurep;
 
 use Kennisnet\Edurep\DefaultSearchConfig;
 use Kennisnet\Edurep\EdurepSearch;
+use Kennisnet\Edurep\SearchClient;
 use Kennisnet\Edurep\Strategy\CatalogusStrategyType;
 use Kennisnet\Edurep\Strategy\EdurepStrategyType;
 use PHPUnit\Framework\TestCase;
@@ -98,5 +99,27 @@ class EdurepSearchTest extends TestCase
             'https://staging.catalogusservice.edurep.nl/sru?operation=searchRetrieve&version=1.2&recordPacking=xml&query=math&maximumRecords=100',
             $edurep->getRequestUrl()
         );
+    }
+
+    public function testDefaultSearch()
+    {
+        $strategy     = new EdurepStrategyType();
+        $config       = new DefaultSearchConfig($strategy, "http://wszoeken.edurep.kennisnet.nl:8000/");
+        $searchClient = new class() extends SearchClient {
+            public function executeQuery(string $request, int $maxRetries): string
+            {
+                return file_get_contents(__DIR__ . '/default.xml');
+            }
+        };
+        $edurep       = new EdurepSearch($config, $searchClient);
+
+        $edurep->setQuery("math")
+               ->setRecordSchema("oai_dc")
+               ->addXRecordSchema("smbAggregatedData")
+               ->addXRecordSchema("extra")
+               ->setSortKeys('test');
+        $result = $edurep->search();
+
+        $this->assertEquals($searchClient->executeQuery('', 10), $result);
     }
 }

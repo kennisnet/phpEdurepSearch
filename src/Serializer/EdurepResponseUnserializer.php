@@ -1,13 +1,20 @@
 <?php
 
-namespace Kennisnet\Edurep;
+namespace Kennisnet\Edurep\Serializer;
+
+use DOMNode;
+use DOMNodeList;
+use DOMXPath;
+use Exception;
+use Kennisnet\Edurep\Model\EdurepResultDocument;
+use Kennisnet\Edurep\Unserializer;
 
 /**
  * Class EdurepResponseSerializer
  *
  * @package Kennisnet\Edurep
  */
-abstract class EdurepResponseSerializer implements Serializer
+abstract class EdurepResponseUnserializer implements Unserializer
 {
     const NUMBER_OF_RECORDS    = 'numberOfRecords';
     const SCHEMA               = 'schema';
@@ -21,11 +28,17 @@ abstract class EdurepResponseSerializer implements Serializer
     const EXTRA_RESPONSE_DATA  = 'extraResponseData';
     const DRILLDOWN            = 'drilldown';
 
-    public function deserialize($string): array
+    /**
+     * @param DOMXPath                    $xpath
+     * @param DOMNodeList|iterable<mixed> $records
+     *
+     * @return array<mixed>
+     */
+    abstract protected function records(DOMXPath $xpath, iterable $records): array;
+
+    public function deserialize(string $string, ?string $format): array
     {
-        $doc = new \DOMDocument('1.0', 'utf-8');
-        $doc->loadXML($string);
-        $xpath    = $this->createXPath($doc);
+        $xpath    = (new EdurepResultDocument($string))->xpath;
         $response = [];
         // query the search query data from the response
         $response[self::NUMBER_OF_RECORDS] = ((int)$xpath->evaluate('string(//srw:numberOfRecords/text()[1])'));
@@ -43,54 +56,35 @@ abstract class EdurepResponseSerializer implements Serializer
         }
         $response[self::X_SCHEMAS]            = $response['x-schemas'] ?? [];
         $response[self::NEXT_RECORD_POSITION] = ((int)$xpath->evaluate('string(//srw:nextRecordPosition/text()[1])'));
-        /** @var \DOMNodeList $records */
-        $records                 = $xpath->query('//srw:records/srw:record');
+
+        if (!$records = $xpath->query('//srw:records/srw:record')) {
+            // What to do here?
+            throw new Exception('No records found in Edurep response');
+        }
+
         $response[self::RECORDS] = $this->records($xpath, $records);
         $extras                  = $xpath->query('//srw:extraResponseData');
 
         $response[self::DRILLDOWN] = $this->deserializeDrilldown($xpath);
 
-        foreach ($extras as $extra) {
-            $response[self::EXTRA_RESPONSE_DATA] = $extra ? $this->serializeToArray($extra) : null;
+        if ($extras) {
+            foreach ($extras as $extra) {
+                $response[self::EXTRA_RESPONSE_DATA] = $extra ? $this->serializeToArray($extra) : null;
+            }
         }
 
         return $response;
     }
 
     /**
-     * @param \DOMDocument $doc
-     *
-     * @return \DOMXPath
+     * @param array|string|null $recordData
      */
-    private function createXPath(\DOMDocument $doc)
-    {
-        $xpath = new \DOMXPath($doc);
-        $xpath->registerNamespace('srw', 'http://www.loc.gov/zing/srw/');
-        $xpath->registerNamespace('czp', 'http://www.imsglobal.org/xsd/imsmd_v1p2');
-        $xpath->registerNamespace('sad', 'http://xsd.kennisnet.nl/smd/sad');
-        $xpath->registerNamespace('smo', 'http://xsd.kennisnet.nl/smd/1.0/');
-        $xpath->registerNamespace('edurep', 'http://meresco.org/namespace/users/kennisnet/edurep');
-        $xpath->registerNamespace('dd', 'http://meresco.org/namespace/drilldown');
-        $xpath->registerNamespace('hr', 'http://xsd.kennisnet.nl/smd/hreview/1.0/');
-        $xpath->registerNamespace('hr2', 'http://xsd.kennisnet.nl/smd/1.0/');
-
-        return $xpath;
-    }
-
-    /**
-     * @param       $element \DOMElement
-     * @param array $recordData
-     * @param int   $level
-     *
-     * @return array|string
-     */
-    function serializeToArray($element, &$recordData = [], $level = 0)
-    {
+    function serializeToArray(DOMNode $element, &$recordData = [], int $level = 0
+    ): ?array {
         $level++;
         //list attributes
-        if ($element->hasAttributes()) {
+        if ($element->attributes !== null && is_array($recordData)) {
             foreach ($element->attributes as $attribute) {
-
                 if (isset($recordData['_attributes'][$attribute->name])) {
                     if (is_string($recordData['_attributes'][$attribute->name])) {
                         $recordData['_attributes'][$attribute->name] = [
@@ -119,10 +113,15 @@ abstract class EdurepResponseSerializer implements Serializer
             if ($element->hasChildNodes()) {
                 $children = $element->childNodes;
                 for ($i = 0; $i < $children->length; $i++) {
-                    $this->serializeToArray($children->item($i), $recordData[$key], $level);
+                    if ($children->item($i) !== null) {
+                        if (!isset($recordData[$key])) {
+                            $recordData[$key] = null;
+                        }
+                        $this->serializeToArray($children->item($i), $recordData[$key], $level);
+                    }
                 }
             }
-            // This is the edge of the nodes tree. Here the values will be handled
+            // This is de edge of the nodes tree. Here the values will be handled
         } else {
             if ($element->nodeType == XML_TEXT_NODE || $element->nodeType == XML_CDATA_SECTION_NODE) {
                 // Remove empty strings including newlines and whitespaces
@@ -144,24 +143,19 @@ abstract class EdurepResponseSerializer implements Serializer
         if ($level == 1) {
             return $recordData;
         }
+
+        return null;
     }
 
-    /**
-     * @param \DOMXPath $xpath
-     * @param           $records
-     *
-     * @return mixed
-     */
-    abstract protected function records(\DOMXPath $xpath, $records): array;
-
-    private function deserializeDrilldown(\DOMXPath $xpath)
+    private function deserializeDrilldown(DOMXPath $xpath): array
     {
-        $drilldown = $xpath->query('//srw:extraResponseData/dd:drilldown/dd:term-drilldown');
-        /** @var \DOMNodeList $nodeList */
+        $navigators = [];
+        $drilldown  = $xpath->query('//srw:extraResponseData/dd:drilldown/dd:term-drilldown');
+        if (!$drilldown || $drilldown->length === 0) {
+            return $navigators;
+        }
         $nodeList = $xpath->evaluate("./dd:navigator", $drilldown->item(0));
 
-        $navigators = [];
-        /** @var \DOMElement $element */
         foreach ($nodeList as $element) {
             $items = [];
 
@@ -176,7 +170,6 @@ abstract class EdurepResponseSerializer implements Serializer
                 continue; // do not add navigator if the name attribute is missing
             }
 
-            /** @var \DOMElement $childNode */
             foreach ($element->childNodes as $childNode) {
                 $count = 0;
                 if (!$childNode->attributes) {

@@ -28,34 +28,22 @@ class SearchResult
      */
     private $drilldown;
 
-    /**
-     * @return int
-     */
-    public function getNumberOfRecords()
+    public function getNumberOfRecords(): int
     {
         return $this->numberOfRecords;
     }
 
-    /**
-     * @param int $numberOfRecords
-     */
-    public function setNumberOfRecords($numberOfRecords)
+    public function setNumberOfRecords(int $numberOfRecords): void
     {
         $this->numberOfRecords = $numberOfRecords;
     }
 
-    /**
-     * @return int
-     */
-    public function getNextRecordPosition()
+    public function getNextRecordPosition(): int
     {
         return $this->nextRecordPosition;
     }
 
-    /**
-     * @param int $nextRecordPosition
-     */
-    public function setNextRecordPosition($nextRecordPosition)
+    public function setNextRecordPosition(int $nextRecordPosition): void
     {
         $this->nextRecordPosition = $nextRecordPosition;
     }
@@ -63,39 +51,30 @@ class SearchResult
     /**
      * @return Record[]
      */
-    public function getRecords()
+    public function getRecords(): array
     {
         return $this->records;
     }
 
     /**
-     * @param Record[] $records
+     * @param array<mixed,Record> $records
      */
-    public function setRecords(array $records)
+    public function setRecords(array $records): void
     {
         $this->records = $records;
     }
 
-    /**
-     * @param Record $record
-     */
-    public function addRecord(Record $record)
+    public function addRecord(Record $record): void
     {
         $this->records[] = $record;
     }
 
-    /**
-     * @return EdurepDrilldownResponse
-     */
-    public function getDrilldown()
+    public function getDrilldown(): ?EdurepDrilldownResponse
     {
         return $this->drilldown;
     }
 
-    /**
-     * @param EdurepDrilldownResponse $drilldown
-     */
-    public function setDrilldown($drilldown)
+    public function setDrilldown(EdurepDrilldownResponse $drilldown): void
     {
         $this->drilldown = $drilldown;
     }

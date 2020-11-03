@@ -1,12 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Andreas Warnaar
- * Date: 19-2-19
- * Time: 11:36
- */
+declare(strict_types=1);
 
-namespace Kennisnet\Edurep;
+namespace Kennisnet\Edurep\Normalizer;
 
 
 use Kennisnet\Edurep\Model\EdurepRecord;
@@ -14,16 +9,16 @@ use Kennisnet\Edurep\Model\EdurepRecord;
 class SimpleNormalizer implements RecordNormalizer
 {
     /**
-     * @param $data array
+     * @param array $data
      *
-     * @return array
+     * @return array<string,EdurepRecord>
      */
-    public function normalize(array $data, string $schema)
+    public function normalize(array $data, string $schema): array
     {
         array_walk($data, function (&$record, $id) {
             $eduRecord = new EdurepRecord($id);
             $eduRecord->setTitle($record['Entry']['Title']);
-            $record = $eduRecord;
+            $record[$id] = $eduRecord;
         });
 
         return $data;

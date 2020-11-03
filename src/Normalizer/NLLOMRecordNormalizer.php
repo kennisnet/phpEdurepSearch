@@ -5,13 +5,12 @@ namespace Kennisnet\Edurep\Normalizer;
 
 
 use Kennisnet\Edurep\Model\EdurepRecord;
-use Kennisnet\Edurep\RecordNormalizer;
 use Kennisnet\NLLOM\NLLOM;
 
 class NLLOMRecordNormalizer implements RecordNormalizer
 {
     /**
-     * @param $records NLLOM[]
+     * @param  array<string,NLLOM> $records
      * @return array<string,EdurepRecord>|array
      */
     public function normalize(array $records, string $schema): array

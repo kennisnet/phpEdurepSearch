@@ -7,6 +7,9 @@ use DateTime;
 
 class PublishDate implements Value, Nullable
 {
+    /**
+     * @var DateTime|null
+     */
     private $publishDate = null;
 
     public function __construct(DateTime $dateTime = null)
@@ -14,6 +17,11 @@ class PublishDate implements Value, Nullable
         $this->publishDate = $dateTime;
     }
 
+    /**
+     * @param mixed $value
+     *
+     * @return self
+     */
     public static function fromNative($value): self
     {
         return new self($value);
@@ -29,10 +37,10 @@ class PublishDate implements Value, Nullable
         return $this->publishDate;
     }
 
-    public function __toString(): ?string
+    public function __toString(): string
     {
         if (!$this->publishDate) {
-            return null;
+            return '';
         }
 
         $now  = new DateTime();
