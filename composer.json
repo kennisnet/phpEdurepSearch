@@ -1,7 +1,7 @@
 {
   "name": "kennisnet/edurepsearch",
   "description": "Edurep and Catalogservice search tool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "autoload": {
     "psr-4": {
@@ -14,7 +14,7 @@
     "ext-curl": "*",
     "ext-dom": "*",
     "kennisnet/nllom": "^1.1",
-    "kennisnet/phpeckcs": "dev-master",
+    "kennisnet/phpeckcs": "1.0.*",
     "ext-json": "*"
   },
   "require-dev": {
