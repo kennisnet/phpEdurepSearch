@@ -14,7 +14,7 @@
     "ext-curl": "*",
     "ext-dom": "*",
     "kennisnet/nllom": "^1.1",
-    "kennisnet/phpeckcs": "1.0.*",
+    "kennisnet/phpeckcs": "^1.0",
     "ext-json": "*"
   },
   "require-dev": {
@@ -23,5 +23,10 @@
     "phpstan/phpstan": "^0.12.52"
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "scripts": {
+    "test": "vendor/bin/phpunit",
+    "test:coverage": "vendor/bin/phpunit --coverage-html .coverage",
+    "analyse": "vendor/bin/phpstan analyse"
+  }
 }

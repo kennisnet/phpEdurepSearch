@@ -1,4 +1,5 @@
 .idea
 vendor
 coverage_html
+.coverage
 /.phpunit.result.cache
