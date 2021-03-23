@@ -94,7 +94,7 @@ class EdurepSearch
         return $this;
     }
 
-    private static function isMaximumRecordsOutsideSelectedRange(int $value): bool
+    static private function isMaximumRecordsOutsideSelectedRange(int $value): bool
     {
         return ($value < 0 || $value > self::MAX_RECORDS);
     }
@@ -167,7 +167,7 @@ class EdurepSearch
         return $this;
     }
 
-    private static function isStartRecordOutsideSelectedRange(int $value): bool
+    static private function isStartRecordOutsideSelectedRange(int $value): bool
     {
         return ($value < 1 || $value > self::EDUREP_MAX_STARTRECORD);
     }
