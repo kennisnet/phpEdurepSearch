@@ -8,14 +8,12 @@ use Kennisnet\Edurep\Model\DrilldownNavigator;
 use Kennisnet\Edurep\Model\DrilldownNavigatorItem;
 use Kennisnet\Edurep\Model\EdurepDrilldownResponse;
 use Kennisnet\Edurep\Model\SearchResult;
-use Kennisnet\Edurep\Normalizer;
-use Kennisnet\Edurep\RecordNormalizer;
 use Kennisnet\Edurep\Serializer\EdurepResponseUnserializer;
 use Kennisnet\Edurep\Transformer\EdurepRecordTransformer;
 use Kennisnet\Edurep\Unserializer;
 use ReflectionMethod;
 
-class EdurepResponseNormalizer implements Normalizer
+class EdurepResponseNormalizer
 {
     /**
      * @var EdurepRecordTransformer|null
@@ -28,7 +26,7 @@ class EdurepResponseNormalizer implements Normalizer
     private $unserializer;
 
     /**
-     * @var RecordNormalizer|object
+     * @var RecordNormalizer
      */
     private $recordNormalizer;
 
@@ -36,7 +34,8 @@ class EdurepResponseNormalizer implements Normalizer
      * @throws Exception
      */
     public function __construct(
-        Unserializer $unserializer, object $recordNormalizer,
+        Unserializer $unserializer,
+        RecordNormalizer $recordNormalizer,
         ?EdurepRecordTransformer $edurepRecordTransformer = null
     ) {
         $this->unserializer = $unserializer;

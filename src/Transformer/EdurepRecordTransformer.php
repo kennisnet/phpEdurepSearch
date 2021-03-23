@@ -9,45 +9,29 @@ use Kennisnet\NLLOM\NLLOM;
 class EdurepRecordTransformer
 {
     /**
-     * @param array $records
-     *
-     * @return EdurepRecord[]
+     * @return EdurepRecord[]|EckRecord[]
      * @throws \Exception
      */
-    public function transform(array $records)
+    public function transform(array $records): array
     {
         $transformedRecords = [];
 
         foreach ($records as $record) {
             switch (get_class($record)) {
                 case EdurepRecord::class:
-                    $eduRecord = $record; // no need to transform
-                    break;
                 case EckRecord::class:
-                    $eduRecord = $this->fromEckRecord($record);
+                    $eduRecord = $record; // no need to transform
                     break;
                 case NLLOM::class:
                     $eduRecord = $this->fromNLLOMRecord($record);
                     break;
                 default:
-                    throw new \Exception('Trying to transform from unknown class');
+                    throw new \Exception(sprintf('Trying to transform from unknown class \'%s\'', get_class($record)));
             }
             $transformedRecords[$eduRecord->getRecordId()] = $eduRecord;
         }
 
         return $transformedRecords;
-    }
-
-    public function fromEckRecord(EckRecord $eckRecord): EdurepRecord
-    {
-        $edurepRecord = new EdurepRecord($eckRecord->getRecordId());
-        $edurepRecord->setTitle($eckRecord->getTitle());
-        $edurepRecord->setDescription($eckRecord->getDescription());
-        $edurepRecord->setAuthors($eckRecord->getAuthors());
-        $edurepRecord->setLocation($eckRecord->getLocation());
-        $edurepRecord->setPublisher($eckRecord->getPublisher());
-
-        return $edurepRecord;
     }
 
     public function fromNLLOMRecord(NLLOM $nllomRecord): EdurepRecord

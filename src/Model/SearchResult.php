@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Kennisnet\Edurep\Model;
 
+use Kennisnet\ECK\EckRecord;
 use Kennisnet\Edurep\Record;
 
 class SearchResult
@@ -19,7 +20,7 @@ class SearchResult
     private $nextRecordPosition = 0;
 
     /**
-     * @var Record[]
+     * @var Record[]|EckRecord[]
      */
     private $records = [];
 
@@ -49,7 +50,7 @@ class SearchResult
     }
 
     /**
-     * @return Record[]
+     * @return Record[]|EckRecord[]
      */
     public function getRecords(): array
     {
@@ -57,14 +58,14 @@ class SearchResult
     }
 
     /**
-     * @param array<mixed,Record> $records
+     * @param array<mixed,Record|EckRecord> $records
      */
     public function setRecords(array $records): void
     {
         $this->records = $records;
     }
 
-    public function addRecord(Record $record): void
+    public function addRecord($record): void
     {
         $this->records[] = $record;
     }

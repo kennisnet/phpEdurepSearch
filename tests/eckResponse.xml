@@ -1,50 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/"
->
+                            xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/"
+                            xmlns:xcql="http://www.loc.gov/zing/cql/xcql/" xmlns:dc="http://purl.org/dc/elements/1.1/"
+                            xmlns:meresco_srw="http://meresco.org/namespace/srw#">
     <srw:version>1.2</srw:version>
     <srw:numberOfRecords>1</srw:numberOfRecords>
     <srw:records>
         <srw:record>
-            <srw:recordSchema>eckcs2.1.1</srw:recordSchema>
+            <srw:recordSchema>eckcs2.3</srw:recordSchema>
             <srw:recordPacking>xml</srw:recordPacking>
-            <srw:recordIdentifier>test:license-01</srw:recordIdentifier>
+            <srw:recordIdentifier>blink:081afb73-2f11-5aa5-8cbc-dfb7b62df6d6</srw:recordIdentifier>
             <srw:recordData>
-                <Entry xmlns="http://dt2.eck.nl/schema/catalogservice/v2.1.1"
-                >
-                    <ProductId>license-01</ProductId>
-                    <Publisher>Kennisnet</Publisher>
-                    <PublisherThumbnailLocation>
-                        https://pbs.twimg.com/profile_images/638314278882140163/zWL5qqYc_400x400.png
+                <Entry xmlns="http://dt2.eck.nl/schema/catalogservice/v2.3"
+                       xmlns:ct="http://dt2.eck.nl/schema/common/v2.3">
+                    <ProductId>9789491795442</ProductId>
+                    <Publisher>Blink</Publisher>
+                    <PublisherThumbnailLocation>https://tools.blink.nl/methodelogos/blink.jpg
                     </PublisherThumbnailLocation>
-                    <Title>License Test 1</Title>
+                    <ProductThumbnailLocation>https://tools.blink.nl/methodelogos/plot26.jpg</ProductThumbnailLocation>
+                    <ProductFamilyName>PLOT26</ProductFamilyName>
+                    <Title>PLOT26 alle niveaus docentlicentie</Title>
                     <Authors>
-                        <Author>Kennisnet</Author>
+                        <Author>Blink</Author>
                     </Authors>
-                    <IntendedEndUserRole>Beheerder</IntendedEndUserRole>
-                    <Medium>Anders</Medium>
-                    <IsConsumptionProduct>false</IsConsumptionProduct>
+                    <Description>PLOT26 is een flexibele methode Nederlands waarin vaardigheden in samenhang als het
+                        belangrijkste uitgangspunt zijn genomen.
+                        De methode is opgebouwd uit verschillende soorten lessenseries.
+                        PLOT26 biedt de mogelijkheid om zowel digitaal als met een boek te werken en is beschikbaar voor
+                        de havo- en vwo-onderbouw en het gehele vmbo.
+                    </Description>
+                    <Environments>
+                        <Platform>HTML5</Platform>
+                        <Device>pc ready</Device>
+                        <Browser>Chrome</Browser>
+                        <Browser>Safari</Browser>
+                        <Browser>Edge</Browser>
+                    </Environments>
+                    <ContentLocation>https://plot26.nl</ContentLocation>
+                    <AccessLocation>https://toegang.edu-ix.nl/9789491795442</AccessLocation>
+                    <ProductState>Leverbaar</ProductState>
+                    <InformationLocation>https://plot26.nl</InformationLocation>
+                    <IntendedEndUserRole>Onderwijsgever</IntendedEndUserRole>
+                    <Medium>Web browser</Medium>
+                    <IsConsumptionProduct>true</IsConsumptionProduct>
+                    <ProductUsages>
+                        <ProductUsage>Anders</ProductUsage>
+                    </ProductUsages>
                     <Sectors>
-                        <Sector>PO</Sector>
                         <Sector>VO</Sector>
-                        <Sector>HO</Sector>
-                        <Sector>WO</Sector>
-                        <Sector>MBO</Sector>
                     </Sectors>
                     <Courses>
-                        <Course>Alle courses</Course>
+                        <Course>Nederlands</Course>
                     </Courses>
                     <Levels>
-                        <Level>Alle groepen</Level>
+                        <Level>Voortgezet onderwijs</Level>
+                        <Level>VMBO</Level>
+                        <Level>HAVO</Level>
+                        <Level>VWO</Level>
                     </Levels>
+                    <Years/>
                     <SaleUnitSize>1</SaleUnitSize>
-                    <Currency>EURO</Currency>
-                    <PriceVATHigh>1</PriceVATHigh>
-                    <PriceIsIndicative>true</PriceIsIndicative>
-                    <IsLicensed>false</IsLicensed>
-                    <LicenseAvailablityOptions>0</LicenseAvailablityOptions>
-                    <AdditionalLicenseOptions>
-                        <AdditionalLicenseOption>Proefexemplaar</AdditionalLicenseOption>
-                    </AdditionalLicenseOptions>
+
+                    <PriceIsIndicative>false</PriceIsIndicative>
+                    <IsLicensed>true</IsLicensed>
+                    <ActivationBefore>
+                        <ActivationBeforeDate>2090-07-20T00:00:00</ActivationBeforeDate>
+                    </ActivationBefore>
+                    <LicenseAvailabilityOptions>Flexible Start with fixed end</LicenseAvailabilityOptions>
+                    <LicenseEndDate>2021-07-31</LicenseEndDate>
+                    <LicenseCount>1</LicenseCount>
+                    <IsCatalogItem>true</IsCatalogItem>
+                    <Copyright>yes</Copyright>
+                    <LastModifiedDate>2020-04-24T00:00:00</LastModifiedDate>
                 </Entry>
             </srw:recordData>
         </srw:record>
@@ -55,9 +82,44 @@
         <srw:startRecord>1</srw:startRecord>
         <srw:maximumRecords>10</srw:maximumRecords>
         <srw:recordPacking>xml</srw:recordPacking>
-        <srw:recordSchema>eckcs2.1.1</srw:recordSchema>
+        <srw:recordSchema>eckcs2.3</srw:recordSchema>
+        <srw:extraRequestData>
+            <dd:drilldown
+                    xmlns:dd="http://meresco.org/namespace/drilldown"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://meresco.org/namespace/drilldown http://meresco.org/files/xsd/drilldown-20070730.xsd">
+                <dd:term-drilldown>
+                    Publisher:50,ProductState,IntendedEndUserRole,Medium,IsConsumptionProduct,Sectors.Sector
+                </dd:term-drilldown>
+            </dd:drilldown>
+        </srw:extraRequestData>
     </srw:echoedSearchRetrieveRequest>
     <srw:extraResponseData>
+        <dd:drilldown
+                xmlns:dd="http://meresco.org/namespace/drilldown"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://meresco.org/namespace/drilldown http://meresco.org/files/xsd/drilldown-20070730.xsd">
+            <dd:term-drilldown>
+                <dd:navigator name="Publisher">
+                    <dd:item count="1">Blink</dd:item>
+                </dd:navigator>
+                <dd:navigator name="ProductState">
+                    <dd:item count="1">Leverbaar</dd:item>
+                </dd:navigator>
+                <dd:navigator name="IntendedEndUserRole">
+                    <dd:item count="1">Onderwijsgever</dd:item>
+                </dd:navigator>
+                <dd:navigator name="Medium">
+                    <dd:item count="1">Web browser</dd:item>
+                </dd:navigator>
+                <dd:navigator name="IsConsumptionProduct">
+                    <dd:item count="1">true</dd:item>
+                </dd:navigator>
+                <dd:navigator name="Sectors.Sector">
+                    <dd:item count="1">VO</dd:item>
+                </dd:navigator>
+            </dd:term-drilldown>
+        </dd:drilldown>
         <querytimes xmlns="http://meresco.org/namespace/timing">
             <sruHandling>PT0.006S</sruHandling>
             <sruQueryTime>PT0.004S</sruQueryTime>

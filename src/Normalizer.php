@@ -2,7 +2,7 @@
 
 namespace Kennisnet\Edurep;
 
-
+/** @deprecated use Kennisnet\Edurep\Normalizer\RecordNormalizer instead */
 interface Normalizer
 {
     /**
