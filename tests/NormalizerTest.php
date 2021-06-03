@@ -1,8 +1,10 @@
 <?php
 
-use Kennisnet\ECK\RecordsNormalizer;
+namespace Tests\Kennisnet\Edurep;
+
+use Kennisnet\ECK\EckRecord;
 use Kennisnet\Edurep\Model\EdurepRecord;
-use Kennisnet\Edurep\Model\SearchResult;
+use Kennisnet\Edurep\Normalizer\CatalogNormalizer;
 use Kennisnet\Edurep\Normalizer\EdurepResponseNormalizer;
 use Kennisnet\Edurep\Normalizer\NLLOMRecordNormalizer;
 use Kennisnet\Edurep\Serializer\DefaultResponseSerializer;
@@ -14,22 +16,18 @@ class NormalizerTest extends TestCase
     public function testNormalizeEckSearchResult()
     {
         $response = file_get_contents(__DIR__ . '/eckResponse.xml');
-        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
-        $normalizer = new EdurepResponseNormalizer(new DefaultResponseSerializer(), new RecordsNormalizer());
-        /** @var SearchResult $result */
+        $normalizer = new EdurepResponseNormalizer(new DefaultResponseSerializer(), new CatalogNormalizer());
         $result = $normalizer->unSerialize($response,'xml');
         $this->assertNotEmpty($result->getRecords());
 
         $records = $result->getRecords();
-        $this->assertEquals(EdurepRecord::class, get_class(array_shift($records)));
+        $this->assertEquals(EckRecord::class, get_class(array_shift($records)));
     }
 
     public function testNormalizeLomSearchResult()
     {
         $response = file_get_contents(__DIR__ . '/lomResponse.xml');
-        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
         $normalizer = new EdurepResponseNormalizer(new NLLOMResponseSerializer(), new NLLOMRecordNormalizer());
-        /** @var SearchResult $result */
         $result = $normalizer->unSerialize($response);
         $this->assertNotEmpty($result->getRecords());
 
@@ -40,9 +38,7 @@ class NormalizerTest extends TestCase
     public function testDefaultLomSearchResult()
     {
         $response = file_get_contents(__DIR__ . '/default.xml');
-        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
         $normalizer = new EdurepResponseNormalizer(new NLLOMResponseSerializer(), new NLLOMRecordNormalizer());
-        /** @var SearchResult $result */
         $result = $normalizer->unSerialize($response);
         $this->assertNotEmpty($result->getRecords());
 
@@ -52,9 +48,7 @@ class NormalizerTest extends TestCase
     public function testDrilldownSearchResult()
     {
         $response = file_get_contents(__DIR__ . '/drilldown.xml');
-        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
         $normalizer = new EdurepResponseNormalizer(new NLLOMResponseSerializer(), new NLLOMRecordNormalizer());
-        /** @var SearchResult $result */
         $result = $normalizer->unSerialize($response);
         $this->assertEmpty($result->getRecords());
 

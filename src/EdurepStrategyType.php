@@ -2,20 +2,11 @@
 
 namespace Kennisnet\Edurep;
 
-class EdurepStrategyType implements StrategyType
-{
-    public function getSearchUrl(string $type = null): string
-    {
-        switch ($type) {
-            case EdurepSearch::SEARCHTYPE_LOM:
-                return "edurep/sruns";
-            case EdurepSearch::SEARCHTYPE_SMO:
-                return "smo/sruns";
-            case EdurepSearch::SEARCHTYPE_PLUS:
-                return "edurep/sruns/plus";
-        }
+use Kennisnet\Edurep\Strategy\EdurepStrategyType as StrategyType;
 
-        //Default
-        return "edurep/sruns";
-    }
+/**
+ * @deprecated Use Kennisnet\Edurep\Strategy\EdurepStrategyType instead
+ */
+class EdurepStrategyType extends \Kennisnet\Edurep\Strategy\EdurepStrategyType
+{
 }
