@@ -71,6 +71,11 @@ class EdurepSearch
         $this->searchClient = $searchClient;
     }
 
+    private function isCatalogusStrategy(StrategyType $strategyType): bool
+    {
+        return $strategyType instanceof \Kennisnet\Edurep\Strategy\CatalogusStrategyType;
+    }
+
     /**
      * @param int $value
      *
@@ -78,13 +83,20 @@ class EdurepSearch
      */
     public function setMaximumRecords(int $value): self
     {
-        if ($value >= 0 && $value <= self::MAX_RECORDS) {
-            $this->parameters["maximumRecords"] = $value;
-        } else {
-            throw new UnexpectedValueException("The value for maximumRecords should be between 0 and 100.", 22);
+        $isCatalogusStrategy = $this->isCatalogusStrategy($this->config->getStrategy());
+
+        if (self::isMaximumRecordsOutsideSelectedRange($value) && !$isCatalogusStrategy) {
+            throw new UnexpectedValueException("The value for maximumRecords should be between 0 and " . self::MAX_RECORDS . ".", 22);
         }
 
+        $this->parameters["maximumRecords"] = $value;
+
         return $this;
+    }
+
+    static private function isMaximumRecordsOutsideSelectedRange(int $value): bool
+    {
+        return ($value < 0 || $value > self::MAX_RECORDS);
     }
 
     public function setRecordpacking(string $recordPacking): self
@@ -142,15 +154,22 @@ class EdurepSearch
      */
     public function setStartRecord(int $value): self
     {
-        if ($value >= 1 && $value <= self::EDUREP_MAX_STARTRECORD) {
-            $this->parameters["startRecord"] = $value;
-            $this->availablestartrecords     = self::EDUREP_MAX_STARTRECORD - $value;
-        } else {
+        $isCatalogusStrategy = $this->isCatalogusStrategy($this->config->getStrategy());
+
+        if (self::isStartRecordOutsideSelectedRange($value) && !$isCatalogusStrategy) {
             throw new UnexpectedValueException("The value for startRecords should be between 1 and " . self::EDUREP_MAX_STARTRECORD . ".",
-                                               23);
+                23);
         }
 
+        $this->parameters["startRecord"] = $value;
+        $this->availablestartrecords     = self::EDUREP_MAX_STARTRECORD - $value;
+
         return $this;
+    }
+
+    static private function isStartRecordOutsideSelectedRange(int $value): bool
+    {
+        return ($value < 1 || $value > self::EDUREP_MAX_STARTRECORD);
     }
 
     public function addXRecordSchema(string $value): self
@@ -209,7 +228,9 @@ class EdurepSearch
     {
         # making sure the startRecord/maximumRecord combo does
         # not trigger an exception.
-        if ($this->availablestartrecords < $this->parameters["maximumRecords"]) {
+        $isNotCatalogusStrategy = !$this->isCatalogusStrategy($this->config->getStrategy());
+
+        if (($this->availablestartrecords < $this->parameters["maximumRecords"]) && $isNotCatalogusStrategy) {
             $this->parameters["maximumRecords"] = $this->availablestartrecords;
         }
 

@@ -22,7 +22,7 @@ class PublishDate implements Value, Nullable
      *
      * @return self
      */
-    public static function fromNative($value): self
+    public static function fromNative($value): Value
     {
         return new self($value);
     }

@@ -65,6 +65,9 @@ class SearchResult
         $this->records = $records;
     }
 
+    /**
+     * @param Record|EckRecord $record
+     */
     public function addRecord($record): void
     {
         $this->records[] = $record;
