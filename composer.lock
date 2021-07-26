@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38cbd3c37cbd3563771ab185a24c1f77",
+    "content-hash": "e043e7be12d2870e12b5743fcb762a70",
     "packages": [
         {
             "name": "kennisnet/nllom",
@@ -45,16 +45,16 @@
         },
         {
             "name": "kennisnet/phpeckcs",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kennisnet/phpECKCS.git",
-                "reference": "1a99cb16f04269351771f14d44612b28de21b9d0"
+              "reference": "476720fb76345cab85fe28a22e52dde6c6178087"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/1a99cb16f04269351771f14d44612b28de21b9d0",
-                "reference": "1a99cb16f04269351771f14d44612b28de21b9d0",
+                "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/476720fb76345cab85fe28a22e52dde6c6178087",
+                "reference": "476720fb76345cab85fe28a22e52dde6c6178087",
                 "shasum": ""
             },
             "require": {
@@ -65,6 +65,9 @@
             "require-dev": {
                 "phpstan/phpstan": "^0.12.52",
                 "phpunit/phpunit": "^9.4"
+            },
+            "suggest": {
+              "kennisnet/edurepsearch": "Provides a standard interface for browsing and searching in the CatalogService."
             },
             "type": "library",
             "autoload": {
@@ -79,11 +82,7 @@
             ],
             "description": "PHP normalizer for ECK records from Koppelpunt Catalogusinformatie",
             "homepage": "https://github.com/kennisnet/phpECKCS",
-            "support": {
-                "issues": "https://github.com/kennisnet/phpECKCS/issues",
-                "source": "https://github.com/kennisnet/phpECKCS/tree/1.0.0"
-            },
-            "time": "2020-11-05T12:25:13+00:00"
+            "time": "2021-07-26T12:42:26+00:00"
         }
     ],
     "packages-dev": [
