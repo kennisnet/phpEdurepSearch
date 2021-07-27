@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e043e7be12d2870e12b5743fcb762a70",
+    "content-hash": "90674ff902e4e6d784b0757746e91e4b",
     "packages": [
         {
             "name": "kennisnet/nllom",
@@ -45,17 +45,17 @@
         },
         {
             "name": "kennisnet/phpeckcs",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kennisnet/phpECKCS.git",
-              "reference": "476720fb76345cab85fe28a22e52dde6c6178087"
+                "reference": "bbdfb50aba7f8b6efad7c8eafa605f1f5aeee852"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/476720fb76345cab85fe28a22e52dde6c6178087",
-                "reference": "476720fb76345cab85fe28a22e52dde6c6178087",
-                "shasum": ""
+              "type": "zip",
+              "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/bbdfb50aba7f8b6efad7c8eafa605f1f5aeee852",
+              "reference": "bbdfb50aba7f8b6efad7c8eafa605f1f5aeee852",
+              "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -82,7 +82,7 @@
             ],
             "description": "PHP normalizer for ECK records from Koppelpunt Catalogusinformatie",
             "homepage": "https://github.com/kennisnet/phpECKCS",
-            "time": "2021-07-26T12:42:26+00:00"
+            "time": "2021-07-27T12:10:30+00:00"
         }
     ],
     "packages-dev": [
