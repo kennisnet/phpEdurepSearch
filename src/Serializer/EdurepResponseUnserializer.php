@@ -126,7 +126,7 @@ abstract class EdurepResponseUnserializer implements Unserializer
             if ($element->nodeType == XML_TEXT_NODE || $element->nodeType == XML_CDATA_SECTION_NODE) {
                 // Remove empty strings including newlines and whitespaces
                 $value = trim($element->nodeValue);
-                if (!empty($value)) {
+                if (!empty($value) || $value === "0") {
                     // Is array && not equal the current value as set before, convert it to an array.
                     if (is_string($recordData)) {
                         $recordData = [$recordData, $value];
