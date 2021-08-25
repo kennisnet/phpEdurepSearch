@@ -1,5 +1,7 @@
 <?php
 
+namespace Tests\Kennisnet\Edurep;
+
 use Kennisnet\ECK\RecordsNormalizer;
 use Kennisnet\Edurep\Model\EdurepRecord;
 use Kennisnet\Edurep\Model\SearchResult;
@@ -11,13 +13,23 @@ use PHPUnit\Framework\TestCase;
 
 class NormalizerTest extends TestCase
 {
-    public function testNormalizeEckSearchResult()
+    public function testEckVersionNotSupported()
     {
-        $response = file_get_contents(__DIR__ . '/eckResponse.xml');
+        $response = file_get_contents(__DIR__ . '/eckResponse-v2.1.1.xml');
         /** @var \Kennisnet\Edurep\Normalizer $normalizer */
         $normalizer = new EdurepResponseNormalizer(new DefaultResponseSerializer(), new RecordsNormalizer());
         /** @var SearchResult $result */
         $result = $normalizer->unSerialize($response,'xml');
+        $this->assertEmpty($result->getRecords());
+    }
+
+    public function testNormalizeEckSearchResult()
+    {
+        $response = file_get_contents(__DIR__ . '/eckResponse-v2.3.xml');
+        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
+        $normalizer = new EdurepResponseNormalizer(new DefaultResponseSerializer(), new RecordsNormalizer());
+        /** @var SearchResult $result */
+        $result = $normalizer->unSerialize($response, 'xml');
         $this->assertNotEmpty($result->getRecords());
 
         $records = $result->getRecords();

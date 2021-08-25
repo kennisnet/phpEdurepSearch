@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/"
->
+<srw:searchRetrieveResponse xmlns:srw="http://www.loc.gov/zing/srw/">
     <srw:version>1.2</srw:version>
     <srw:numberOfRecords>1</srw:numberOfRecords>
     <srw:records>
