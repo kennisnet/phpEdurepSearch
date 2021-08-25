@@ -16,11 +16,12 @@ class NormalizerTest extends TestCase
 {
     public function testEckVersionNotSupported()
     {
-        $this->expectException(RecordSchemaNotSupportedException::class);
-        (new EdurepResponseNormalizer(
-            new DefaultResponseSerializer(),
-            new RecordsNormalizer()))->unSerialize(file_get_contents(__DIR__ . '/eckResponse-v2.1.1.xml'), 'xml'
-        );
+        $response = file_get_contents(__DIR__ . '/eckResponse-v2.1.1.xml');
+        /** @var \Kennisnet\Edurep\Normalizer $normalizer */
+        $normalizer = new EdurepResponseNormalizer(new DefaultResponseSerializer(), new RecordsNormalizer());
+        /** @var SearchResult $result */
+        $result = $normalizer->unSerialize($response,'xml');
+        $this->assertEmpty($result->getRecords());
     }
 
     public function testNormalizeEckSearchResult()
