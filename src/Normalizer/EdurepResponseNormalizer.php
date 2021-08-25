@@ -4,12 +4,12 @@ declare(strict_types=1);
 namespace Kennisnet\Edurep\Normalizer;
 
 use Exception;
+use Kennisnet\ECK\Exception\RecordSchemaNotSupportedException;
 use Kennisnet\Edurep\Model\DrilldownNavigator;
 use Kennisnet\Edurep\Model\DrilldownNavigatorItem;
 use Kennisnet\Edurep\Model\EdurepDrilldownResponse;
 use Kennisnet\Edurep\Model\SearchResult;
 use Kennisnet\Edurep\Normalizer;
-use Kennisnet\Edurep\RecordNormalizer;
 use Kennisnet\Edurep\Serializer\EdurepResponseUnserializer;
 use Kennisnet\Edurep\Transformer\EdurepRecordTransformer;
 use Kennisnet\Edurep\Unserializer;
@@ -79,15 +79,19 @@ class EdurepResponseNormalizer implements Normalizer
         $result->setNumberOfRecords($data[EdurepResponseUnserializer::NUMBER_OF_RECORDS] ?? 0);
         $result->setNextRecordPosition($data[EdurepResponseUnserializer::NEXT_RECORD_POSITION] ?? 0);
 
-        /** @phpstan-ignore-next-line */
-        $records = $this->recordNormalizer->normalize(
-            $data[EdurepResponseUnserializer::RECORDS] ?? [], $data[EdurepResponseUnserializer::SCHEMA]
-        );
+        try {
+            /** @phpstan-ignore-next-line */
+            $records = $this->recordNormalizer->normalize(
+                $data[EdurepResponseUnserializer::RECORDS] ?? [], $data[EdurepResponseUnserializer::SCHEMA]
+            );
 
-        $result->setRecords($this->edurepRecordTransformer->transform($records) ?? []);
+            $result->setRecords($this->edurepRecordTransformer->transform($records) ?? []);
+        } catch (RecordSchemaNotSupportedException $e) {
+            // handle unsupported schema
+            $result->setRecords([]);
+        }
 
         // Normalizer aggregated record data
-
         $result->setDrilldown($this->normalizeDrilldowns($data[EdurepResponseUnserializer::DRILLDOWN]));
 
         return $result;
