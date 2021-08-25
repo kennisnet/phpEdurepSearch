@@ -2,7 +2,6 @@
 
 namespace Tests\Kennisnet\Edurep;
 
-use Kennisnet\ECK\Exception\RecordSchemaNotSupportedException;
 use Kennisnet\ECK\RecordsNormalizer;
 use Kennisnet\Edurep\Model\EdurepRecord;
 use Kennisnet\Edurep\Model\SearchResult;
