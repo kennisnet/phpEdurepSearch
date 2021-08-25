@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0cd4ddc9e1010d1c5526efaa3e4bb5b5",
+    "content-hash": "d18def018f82cae8f89d6b3cc3cb2d9f",
     "packages": [
         {
             "name": "kennisnet/nllom",
@@ -45,17 +45,17 @@
         },
         {
             "name": "kennisnet/phpeckcs",
-            "version": "1.0.4",
+            "version": "1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/kennisnet/phpECKCS.git",
-                "reference": "51c19520ec9fa260dd57b145d9c1abcea33537b7"
+                "reference": "c389e645da0a385accadd03814cc3e76fa8a63c8"
             },
             "dist": {
-              "type": "zip",
-              "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/51c19520ec9fa260dd57b145d9c1abcea33537b7",
-              "reference": "51c19520ec9fa260dd57b145d9c1abcea33537b7",
-              "shasum": ""
+                "type": "zip",
+                "url": "https://api.github.com/repos/kennisnet/phpECKCS/zipball/c389e645da0a385accadd03814cc3e76fa8a63c8",
+                "reference": "c389e645da0a385accadd03814cc3e76fa8a63c8",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -67,7 +67,7 @@
                 "phpunit/phpunit": "^9.4"
             },
             "suggest": {
-              "kennisnet/edurepsearch": "Provides a standard interface for browsing and searching in the CatalogService."
+                "kennisnet/edurepsearch": "Provides a standard interface for browsing and searching in the CatalogService."
             },
             "type": "library",
             "autoload": {
@@ -82,7 +82,7 @@
             ],
             "description": "PHP normalizer for ECK records from Koppelpunt Catalogusinformatie",
             "homepage": "https://github.com/kennisnet/phpECKCS",
-            "time": "2021-07-28T13:17:19+00:00"
+            "time": "2021-08-25T06:22:27+00:00"
         }
     ],
     "packages-dev": [
@@ -2250,5 +2250,5 @@
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "1.1.0"
 }
